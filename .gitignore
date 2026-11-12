@@ -1,0 +1,85 @@
+# ---------------------------------------------------------------------------
+# Temperino (Flutter, Android)
+# ---------------------------------------------------------------------------
+
+# Release signing: never commit keystores or their passwords.
+android/key.properties
+*.jks
+*.keystore
+*.p12
+*.pem
+
+# Local environment files
+.env
+.env.*
+android/local.properties
+local.properties
+
+# ---------------------------------------------------------------------------
+# Flutter / Dart / Pub
+# ---------------------------------------------------------------------------
+.dart_tool/
+.flutter-plugins
+.flutter-plugins-dependencies
+.packages
+.pub-cache/
+.pub/
+/build/
+/coverage/
+**/doc/api/
+migrate_working_dir/
+.widget_preview/
+
+# NOTE: generated code (*.freezed.dart, *.g.dart) IS committed on purpose,
+# so the project builds right after a clone. Regenerate with build_runner.
+
+# Symbolication / obfuscation
+app.*.symbols
+app.*.map.json
+
+# ---------------------------------------------------------------------------
+# Android
+# ---------------------------------------------------------------------------
+android/.gradle/
+android/.kotlin/
+android/captures/
+android/gradlew
+android/gradlew.bat
+android/gradle/wrapper/gradle-wrapper.jar
+android/app/debug/
+android/app/profile/
+android/app/release/
+android/app/.cxx/
+android/**/GeneratedPluginRegistrant.java
+*.apk
+*.aab
+*.ap_
+*.dex
+
+# ---------------------------------------------------------------------------
+# IDE / OS
+# ---------------------------------------------------------------------------
+.idea/
+*.iml
+*.ipr
+*.iws
+.vscode/*
+!.vscode/settings.json
+!.vscode/extensions.json
+!.vscode/launch.json
+.history/
+.atom/
+.build/
+.buildlog/
+.svn/
+.swiftpm/
+*.class
+*.log
+*.pyc
+*.swp
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Claude Code local settings
+.claude/settings.local.json
