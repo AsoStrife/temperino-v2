@@ -19,9 +19,13 @@ import 'practice_icons.dart';
 
 /// New activity (`id == null`) or edit of a record of the loaded list.
 class ActivityFormScreen extends ConsumerStatefulWidget {
-  const ActivityFormScreen({super.key, this.id});
+  const ActivityFormScreen({super.key, this.id, this.year});
 
   final int? id;
+
+  /// Year of the record to edit (the calendar opens records of any year).
+  /// `null` means the selected year.
+  final int? year;
 
   @override
   ConsumerState<ActivityFormScreen> createState() => _ActivityFormScreenState();
@@ -38,7 +42,7 @@ class _ActivityFormScreenState extends ConsumerState<ActivityFormScreen> {
     if (id == null) return const _ActivityForm(initial: null);
     if (_record != null) return _ActivityForm(initial: _record);
 
-    final year = ref.watch(yearProvider);
+    final int year = widget.year ?? ref.watch(yearProvider);
     final list = ref.watch(activitiesProvider(year));
     return Scaffold(
       appBar: AppBar(title: const Text('Modifica attività')),
@@ -105,7 +109,9 @@ class _ActivityFormState extends ConsumerState<_ActivityForm> {
 
   Future<void> _save() async {
     final messenger = ScaffoldMessenger.of(context);
-    final year = ref.read(yearProvider);
+    // Edits go through the list of the record's own year (it may differ from
+    // the selected year when the record was opened from the calendar).
+    final int year = widget.initial?.date.year ?? ref.read(yearProvider);
     final notifier = ref.read(activitiesProvider(year).notifier);
     setState(() => _busy = FormBusy.saving);
     try {
@@ -136,7 +142,7 @@ class _ActivityFormState extends ConsumerState<_ActivityForm> {
     if (!confirmed || !mounted) return;
 
     final messenger = ScaffoldMessenger.of(context);
-    final year = ref.read(yearProvider);
+    final year = widget.initial!.date.year;
     setState(() => _busy = FormBusy.deleting);
     try {
       await ref.read(activitiesProvider(year).notifier).remove(id);

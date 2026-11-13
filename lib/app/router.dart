@@ -19,10 +19,12 @@ abstract final class Routes {
   static const home = '/';
   static const activities = '/activities';
   static const newActivity = '/activities/new';
-  static String activity(int id) => '/activities/$id';
+  static String activity(int id, {int? year}) =>
+      '/activities/$id${year == null ? '' : '?year=$year'}';
   static const masturbations = '/masturbations';
   static const newMasturbation = '/masturbations/new';
-  static String masturbation(int id) => '/masturbations/$id';
+  static String masturbation(int id, {int? year}) =>
+      '/masturbations/$id${year == null ? '' : '?year=$year'}';
   static const stats = '/stats';
   static const settings = '/settings';
 }
@@ -84,6 +86,9 @@ final routerProvider = Provider<GoRouter>((ref) {
                       fullscreenDialog: true,
                       child: ActivityFormScreen(
                         id: int.tryParse(state.pathParameters['id'] ?? ''),
+                        year: int.tryParse(
+                          state.uri.queryParameters['year'] ?? '',
+                        ),
                       ),
                     ),
                   ),
@@ -112,6 +117,9 @@ final routerProvider = Provider<GoRouter>((ref) {
                       fullscreenDialog: true,
                       child: MasturbationFormScreen(
                         id: int.tryParse(state.pathParameters['id'] ?? ''),
+                        year: int.tryParse(
+                          state.uri.queryParameters['year'] ?? '',
+                        ),
                       ),
                     ),
                   ),

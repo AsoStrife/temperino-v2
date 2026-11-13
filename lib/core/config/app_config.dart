@@ -7,7 +7,7 @@ abstract final class AppConfig {
   // ---- App ----
   static const appName = 'Temperino';
   static const appVersion =
-      '1.2.0'; // tenere allineato a `version:` in pubspec.yaml
+      '2.0.0'; // tenere allineato a `version:` in pubspec.yaml
   static const androidPackage = 'com.strifelab.temperino';
 
   // ---- Backend (Strapi v4, lo stesso dell'app attuale) ----
@@ -91,6 +91,7 @@ abstract final class AppConfig {
   static const prefPartnerBGender = 'partner.b.gender';
   static const prefSelectedYear = 'settings.year';
   static const prefThemeMode = 'settings.themeMode';
+  static const prefListLayout = 'settings.listLayout';
 
   // ---- Validazione profilo ----
   static const partnerNameMaxLength = 30;

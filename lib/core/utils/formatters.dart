@@ -11,6 +11,7 @@ abstract final class Formatters {
   static final _dayMonth = DateFormat('d MMMM', locale);
   static final _weekdayShort = DateFormat('EEE', locale);
   static final _weekdayLong = DateFormat('EEEE', locale);
+  static final _weekdayNarrow = DateFormat('EEEEE', locale);
   static final _monthLong = DateFormat('MMMM', locale);
   static final _monthShort = DateFormat('MMM', locale);
   static final _ratio = NumberFormat('0.00', locale);
@@ -29,6 +30,15 @@ abstract final class Formatters {
   /// `Domenica`
   static String weekdayLong(DateOnly d) =>
       _capitalize(_weekdayLong.format(d.toDateTime()));
+
+  /// `Giovedì 12 novembre 2026`
+  static String dateLong(DateOnly d) =>
+      '${weekdayLong(d)} ${dayMonth(d)} ${d.year}';
+
+  /// `L`, `M`, … for an ISO weekday (1 = Monday).
+  static String weekdayNarrow(int weekday) => _weekdayNarrow
+      .format(DateTime(2024, 1, weekday)) // 2024-01-01 is a Monday
+      .toUpperCase();
 
   /// `Novembre`
   static String monthLong(int month) =>

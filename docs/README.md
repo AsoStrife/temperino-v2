@@ -10,6 +10,7 @@ Regole su come e quando aggiornare questi file: `AGENTS.md` nella radice.
 | [home.md](features/home.md) | Riepilogo dell'anno |
 | [activities.md](features/activities.md) | Lista e form delle attività sessuali |
 | [masturbations.md](features/masturbations.md) | Lista e form delle masturbazioni |
+| [calendar-view.md](features/calendar-view.md) | Vista calendario di attività e masturbazioni (cuori, foglio del giorno) |
 | [stats.md](features/stats.md) | Statistiche, definizioni e grafici |
 | [settings.md](features/settings.md) | Impostazioni, anno selezionato, tema |
 | [app-shell-theme.md](features/app-shell-theme.md) | Navigazione, back Android, tema, status bar, icona e splash |
@@ -33,3 +34,5 @@ Regole su come e quando aggiornare questi file: `AGENTS.md` nella radice.
 | [TEMPLATE.md](plans/TEMPLATE.md) | Modello per i nuovi piani |
 | [2026-11-12-flutter-migration.md](plans/2026-11-12-flutter-migration.md) | 🟡 M0–M7 completati, M8 parziale |
 | [2026-11-12-ui-redesign.md](plans/2026-11-12-ui-redesign.md) | ✅ Redesign completo della UI |
+| [2026-11-13-calendar-view.md](plans/2026-11-13-calendar-view.md) | ✅ Vista calendario per attività e masturbazioni |
+| [2026-11-13-remove-page-titles.md](plans/2026-11-13-remove-page-titles.md) | ✅ Pagine senza titolo grande |

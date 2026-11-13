@@ -43,6 +43,8 @@ class AppColors extends ThemeExtension<AppColors> {
     required this.tile,
     required this.tileHigh,
     required this.hairline,
+    required this.genderFemale,
+    required this.genderMale,
   });
 
   static const light = AppColors(
@@ -62,6 +64,8 @@ class AppColors extends ThemeExtension<AppColors> {
     tile: Colors.white,
     tileHigh: Color(0xFFF1F1F4),
     hairline: Color(0xFFE6E6EC),
+    genderFemale: AppPalette.accent,
+    genderMale: Color(0xFF2563EB),
   );
 
   static const dark = AppColors(
@@ -81,6 +85,8 @@ class AppColors extends ThemeExtension<AppColors> {
     tile: Color(0xFF161619),
     tileHigh: Color(0xFF212126),
     hairline: Color(0xFF2A2A31),
+    genderFemale: Color(0xFFFF4D6A),
+    genderMale: Color(0xFF60A5FA),
   );
 
   final Color partnerA;
@@ -100,6 +106,11 @@ class AppColors extends ThemeExtension<AppColors> {
   final Color tileHigh;
   final Color hairline;
 
+  /// Fill of the masturbation hearts of a woman (red) and of a man (blue).
+  /// Colors follow the gender in the profile, not the partner slot.
+  final Color genderFemale;
+  final Color genderMale;
+
   /// Fill color of a partner (charts, dots, rings).
   Color partner(Partner p) => p == Partner.a ? partnerA : partnerB;
 
@@ -108,6 +119,9 @@ class AppColors extends ThemeExtension<AppColors> {
 
   /// Tonal background of a partner.
   Color partnerSoft(Partner p) => partner(p).withValues(alpha: 0.14);
+
+  /// Fill color of a gender (masturbation calendar hearts).
+  Color gender(Gender g) => g == Gender.female ? genderFemale : genderMale;
 
   Color get accentSoft => accent.withValues(alpha: 0.14);
 
@@ -135,6 +149,8 @@ class AppColors extends ThemeExtension<AppColors> {
     Color? tile,
     Color? tileHigh,
     Color? hairline,
+    Color? genderFemale,
+    Color? genderMale,
   }) => AppColors(
     partnerA: partnerA ?? this.partnerA,
     partnerB: partnerB ?? this.partnerB,
@@ -152,6 +168,8 @@ class AppColors extends ThemeExtension<AppColors> {
     tile: tile ?? this.tile,
     tileHigh: tileHigh ?? this.tileHigh,
     hairline: hairline ?? this.hairline,
+    genderFemale: genderFemale ?? this.genderFemale,
+    genderMale: genderMale ?? this.genderMale,
   );
 
   @override
@@ -175,6 +193,8 @@ class AppColors extends ThemeExtension<AppColors> {
       tile: l(tile, other.tile),
       tileHigh: l(tileHigh, other.tileHigh),
       hairline: l(hairline, other.hairline),
+      genderFemale: l(genderFemale, other.genderFemale),
+      genderMale: l(genderMale, other.genderMale),
     );
   }
 }

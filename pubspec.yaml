@@ -5,7 +5,7 @@ publish_to: 'none'
 # version: <versionName>+<versionCode>
 # - versionName must match AppConfig.appVersion (lib/core/config/app_config.dart).
 # - versionCode must be greater than the last one uploaded to Google Play.
-version: 1.2.0+1
+version: 2.0.0+1
 
 environment:
   sdk: ^3.13.1

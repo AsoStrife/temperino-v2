@@ -4,14 +4,22 @@ import 'package:go_router/go_router.dart';
 
 import '../../../app/router.dart';
 import '../../../app/theme.dart';
+import '../../../core/utils/date_only.dart';
 import '../../../shared/widgets/app_page.dart';
+import '../../../shared/widgets/day_events_sheet.dart';
 import '../../../shared/widgets/empty_state.dart';
+import '../../../shared/widgets/event_calendar.dart';
 import '../../../shared/widgets/form_widgets.dart';
+import '../../../shared/widgets/heart_mark.dart';
+import '../../../shared/widgets/layout_toggle.dart';
 import '../../../shared/widgets/month_grouped_list.dart';
 import '../../../shared/widgets/tiles.dart';
 import '../../../shared/widgets/year_selector.dart';
+import '../../calendar/domain/day_events.dart';
+import '../../calendar/presentation/calendar_providers.dart';
 import '../../profile/domain/partner_profile.dart';
 import '../../profile/presentation/profile_providers.dart';
+import '../../settings/data/layout_preference.dart';
 import '../../settings/data/year_preference.dart';
 import '../domain/sexual_activity.dart';
 import 'activities_providers.dart';
@@ -30,6 +38,8 @@ class _ActivitiesListScreenState extends ConsumerState<ActivitiesListScreen> {
   /// dismissed row leaves the tree immediately.
   final _hidden = <int>{};
 
+  final _calendarKey = GlobalKey<SliverEventCalendarState>();
+
   Future<void> _delete(int year, SexualActivity item) async {
     final id = item.id;
     if (id == null) return;
@@ -45,17 +55,78 @@ class _ActivitiesListScreenState extends ConsumerState<ActivitiesListScreen> {
     }
   }
 
+  Future<void> _refreshAllYears() async {
+    await Future.wait([
+      for (final y in selectableYears())
+        ref.refresh(activitiesProvider(y).future),
+    ]);
+  }
+
+  Future<void> _openDay(DateOnly day, List<SexualActivity> items) async {
+    if (items.isEmpty) return;
+    final SexualActivity? picked;
+    if (items.length == 1) {
+      picked = items.first;
+    } else {
+      picked = await showDayEventsSheet<SexualActivity>(
+        context,
+        date: day,
+        subtitle: '${items.length} attività',
+        items: items,
+        rowBuilder: (context, x) => _ActivityRow(activity: x),
+      );
+    }
+    final id = picked?.id;
+    if (id == null || !mounted) return;
+    await context.push(Routes.activity(id, year: day.year));
+  }
+
+  Future<void> _showToday() async {
+    final today = DateOnly.today();
+    _calendarKey.currentState?.showMonth(
+      CalendarDays.focusMonthOf(today.year, today),
+    );
+    await ref.read(yearProvider.notifier).select(today.year);
+  }
+
   @override
   Widget build(BuildContext context) {
     final year = ref.watch(yearProvider);
+    final layout = ref.watch(listLayoutProvider);
+
+    // In the calendar the year pill moves to that year instead of filtering.
+    ref.listen<int>(yearProvider, (previous, next) {
+      if (previous == next) return;
+      _calendarKey.currentState?.showMonth(
+        CalendarDays.focusMonthOf(next, DateOnly.today()),
+      );
+    });
+
+    if (layout == ListLayout.calendar) {
+      return AppPage(
+        actions: [
+          IconButton(
+            tooltip: 'Vai a oggi',
+            icon: const Icon(Icons.today_rounded),
+            onPressed: _showToday,
+          ),
+          const ListLayoutToggle(),
+          const SizedBox(width: 8),
+          const YearSelector(),
+        ],
+        bottom: const CalendarWeekdayHeader(),
+        onRefresh: _refreshAllYears,
+        slivers: _calendarSlivers(context, year),
+      );
+    }
+
     final activities = ref.watch(activitiesProvider(year));
     final c = context.appColors;
 
     Future<void> refresh() => ref.refresh(activitiesProvider(year).future);
 
     return AppPage(
-      title: 'Attività',
-      actions: const [YearSelector()],
+      actions: const [ListLayoutToggle(), SizedBox(width: 8), YearSelector()],
       onRefresh: refresh,
       slivers: asyncSlivers<List<SexualActivity>>(
         activities,
@@ -98,7 +169,7 @@ class _ActivitiesListScreenState extends ConsumerState<ActivitiesListScreen> {
               deleteTitle: 'Cancellare l\'attività?',
               onTap: (x) {
                 final id = x.id;
-                if (id != null) context.push(Routes.activity(id));
+                if (id != null) context.push(Routes.activity(id, year: year));
               },
               onDelete: (x) => _delete(year, x),
               rowBuilder: (context, x) => _ActivityRow(activity: x),
@@ -106,6 +177,46 @@ class _ActivitiesListScreenState extends ConsumerState<ActivitiesListScreen> {
           ];
         },
       ),
+    );
+  }
+
+  List<Widget> _calendarSlivers(BuildContext context, int year) {
+    final c = context.appColors;
+    final today = DateOnly.today();
+    return asyncSlivers<Map<DateOnly, List<SexualActivity>>>(
+      ref.watch(activityDaysProvider),
+      onRetry: _refreshAllYears,
+      data: (days) => [
+        if (days.isEmpty)
+          SliverToBoxAdapter(
+            child: EmptyState(
+              icon: Icons.favorite_border_rounded,
+              message: 'Non sono presenti attività sessuali',
+              actionLabel: 'Aggiungi attività',
+              onAction: () => context.push(Routes.newActivity),
+            ),
+          ),
+        SliverEventCalendar(
+          key: _calendarKey,
+          months: calendarMonths(today),
+          today: today,
+          initialMonth: CalendarDays.focusMonthOf(year, today),
+          dayOf: (d) {
+            final items = days[d];
+            if (items == null) return null;
+            final sex = items.where((x) => x.isSex).length;
+            return CalendarDay(
+              count: items.length,
+              marker: HeartMark(left: c.accent),
+              description: [
+                items.length == 1 ? '1 attività' : '${items.length} attività',
+                if (sex > 0) sex == 1 ? '1 scopata' : '$sex scopate',
+              ].join(', '),
+            );
+          },
+          onDayTap: (d) => _openDay(d, days[d] ?? const []),
+        ),
+      ],
     );
   }
 }

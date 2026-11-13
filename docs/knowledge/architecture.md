@@ -31,10 +31,11 @@ Schermate (ConsumerWidget)  ──watch──▶  Provider Riverpod  ──▶  
 | `lib/features/onboarding/` | `OnboardingScreen`. |
 | `lib/features/activities/` | `SexualActivity`, `Practice`, `CumshotZone`, DTO, repository, `activitiesProvider`, lista, form. |
 | `lib/features/masturbations/` | `Masturbation`, DTO, repository, `masturbationsProvider`, lista, form. |
+| `lib/features/calendar/` | Logica pura del calendario (`CalendarDays`, `MasturbationHeart`) e provider derivati `activityDaysProvider` / `masturbationDaysProvider` (tutti gli anni). |
 | `lib/features/stats/` | `StatsCalculator`, modelli statistici, provider derivati, `StatsScreen`, grafici. |
 | `lib/features/home/` | `HomeScreen`. |
-| `lib/features/settings/` | `yearProvider`, `themeModeProvider`, `SettingsScreen`. |
-| `lib/shared/widgets/` | Componenti del design system: `AppPage`, `Tile`, `MetricTile`, `HeroTile`, `PartnerSplitTile`, `InsetGroup`, `SectionTitle`, `Pill`, `YearSelector`, `EmptyState`, `AsyncBody`, `SliverMonthGroups`, componenti dei form (`DateQuickPicker`, `ToggleTile`, `SelectableGrid`, `ChoiceChipsWrap`, `BigCounter`, `SaveBar`), `showConfirmDialog`, `PartnerAvatar`. Elenco e regole in `design-system.md`. |
+| `lib/features/settings/` | `yearProvider`, `themeModeProvider`, `listLayoutProvider`, `SettingsScreen`. |
+| `lib/shared/widgets/` | Componenti del design system: `AppPage`, `Tile`, `MetricTile`, `HeroTile`, `PartnerSplitTile`, `InsetGroup`, `SectionTitle`, `Pill`, `YearSelector`, `EmptyState`, `AsyncBody`, `SliverMonthGroups`, componenti dei form (`DateQuickPicker`, `ToggleTile`, `SelectableGrid`, `ChoiceChipsWrap`, `BigCounter`, `SaveBar`), `showConfirmDialog`, `PartnerAvatar`, `SliverEventCalendar`, `HeartMark`, `showDayEventsSheet`, `ListLayoutToggle`. Elenco e regole in `design-system.md`. |
 
 ## Provider
 
@@ -45,6 +46,7 @@ Schermate (ConsumerWidget)  ──watch──▶  Provider Riverpod  ──▶  
 | `isOnboardedProvider` / `requireProfileProvider` | `Provider` | `profileProvider` |
 | `yearProvider` | `NotifierProvider<…, int>` | preferenze |
 | `themeModeProvider` | `NotifierProvider<…, ThemeMode>` | preferenze |
+| `listLayoutProvider` | `NotifierProvider<…, ListLayout>` | preferenze |
 | `activitiesProvider(year)` | `AsyncNotifierProvider.family` | `ActivitiesRepository` |
 | `masturbationsProvider(year)` | `AsyncNotifierProvider.family` | `MasturbationsRepository` |
 | `yearDataProvider(year)` | `FutureProvider.family` | le due liste |
@@ -55,14 +57,17 @@ Schermate (ConsumerWidget)  ──watch──▶  Provider Riverpod  ──▶  
 | `cumshotProvider(year)` | `FutureProvider.family` | `activitiesProvider` |
 | `calendarProvider(year)` | `FutureProvider.family<CalendarData>` | `yearDataProvider` |
 | `yearlyProvider` | `FutureProvider<List<YearStats>>` | anno corrente dai provider, altri anni via repository (max 5 richieste in parallelo) |
+| `activityDaysProvider` | `Provider<AsyncValue<Map<DateOnly, List<SexualActivity>>>>` | `activitiesProvider(y)` per ogni anno selezionabile |
+| `masturbationDaysProvider` | `Provider<AsyncValue<Map<DateOnly, MasturbationDay>>>` | `masturbationsProvider(y)` per ogni anno, `requireProfileProvider` |
 | `routerProvider` | `Provider<GoRouter>` | `isOnboardedProvider` (refreshListenable) |
 
 ### Invalidazione
 
 - Cambio anno: tutte le schermate guardano `yearProvider` e quindi `…Provider(year)`; il nuovo anno si carica da solo (B5).
 - `add` / `edit` / `remove` dei notifier: ricaricano la lista dell'anno corrente del notifier, invalidano la lista dell'anno toccato se diverso (la data può cambiare anno) e `yearlyProvider`.
-- Pull-to-refresh: `ref.refresh` delle due liste dell'anno.
+- Pull-to-refresh: `ref.refresh` delle due liste dell'anno; nella vista calendario, di tutti gli anni.
+- I provider del calendario osservano le liste di tutti gli anni: ogni invalidazione di un anno si riflette nel calendario senza codice aggiuntivo.
 
 ## Navigazione
 
-`StatefulShellRoute.indexedStack` con cinque rami (Home, Attività, Masturbazioni, Statistiche, Impostazioni); ogni ramo mantiene il proprio stato. I form (`/activities/new`, `/activities/:id`, `/masturbations/new`, `/masturbations/:id`) usano `parentNavigatorKey: root` e `MaterialPage(fullscreenDialog: true)`: si aprono a tutto schermo senza barra, con l'icona X. Il redirect porta a `/onboarding` finché il profilo non è completo.
+`StatefulShellRoute.indexedStack` con cinque rami (Home, Attività, Masturbazioni, Statistiche, Impostazioni); ogni ramo mantiene il proprio stato. I form (`/activities/new`, `/activities/:id`, `/masturbations/new`, `/masturbations/:id`) usano `parentNavigatorKey: root` e `MaterialPage(fullscreenDialog: true)`; le route di modifica accettano la query `?year=AAAA` (anno del record, usata dal calendario che mostra tutti gli anni): si aprono a tutto schermo senza barra, con l'icona X. Il redirect porta a `/onboarding` finché il profilo non è completo.

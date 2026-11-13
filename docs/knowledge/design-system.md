@@ -22,6 +22,8 @@ Tutto è definito in `lib/app/theme.dart` e nei widget di `lib/shared/widgets/`.
 | `accent` | #E5304D (rosso lampone) | #FF4D6A | Riempimenti accento (barra più frequente, calendario); seed del tema |
 | `accentInk` | #D21E45 | #FF6B85 | Testo accento e `colorScheme.primary` (bottoni) |
 | `heroStart` → `heroEnd` | #E5304D → #F0569B | #D9294A → #E8508F | Gradiente rosso → rosa di hero e pulsante "+" |
+| `genderFemale` | #E5304D | #FF4D6A | Cuore del calendario masturbazioni per una donna (riempimento, non testo) |
+| `genderMale` | #2563EB | #60A5FA | Cuore del calendario masturbazioni per un uomo (riempimento, non testo) |
 | `muted` | #6B6B76 | #9A9AA5 | Testo secondario |
 | `tile` | #FFFFFF | #161619 | Superficie delle tile |
 | `tileHigh` | #F1F1F4 | #212126 | Superficie annidata (chip, campi, tracce) |
@@ -31,6 +33,8 @@ Tutto è definito in `lib/app/theme.dart` e nei widget di `lib/shared/widgets/`.
 Sfondo pagina (`colorScheme.surface`): #F4F4F6 / #0B0B0D.
 
 Contrasti verificati (WCAG): `accentInk` su bianco 5,23:1; bianco su `accentInk` 5,23:1; `partnerAInk` su bianco 5,19:1; `partnerBInk` su bianco 5,87:1; `muted` su bianco 5,26:1; nel tema scuro tutte le varianti ink superano 6,6:1 sulle tile. Il bianco sull'hero (#E5304D, 4,3:1) è usato solo per testo grande/bold, conforme AA per testo grande.
+
+Cuori del calendario (elementi grafici, soglia WCAG 3:1), calcolati: `genderFemale` 4,32:1 su `tile` chiara e 3,93:1 sullo sfondo pagina; `genderMale` 5,17:1 e 4,71:1; nel tema scuro 5,61:1 (rosso) e 7,10:1 (blu) su `tile`. I token di genere sono l'unica eccezione alla regola "colori legati allo slot": servono solo ai cuori delle masturbazioni (vedi `decisions.md`).
 
 Regola: **mai** usare `partnerA`/`partnerB`/`accent` per testo piccolo su tile chiare: usare le varianti `…Ink`.
 
@@ -48,13 +52,13 @@ Regola: **mai** usare `partnerA`/`partnerB`/`accent` per testo piccolo su tile c
 
 ## Tipografia
 
-Font di sistema (Roboto). Titoli e display con peso 700–800 e tracking negativo; numeri con `tabularFigures`. Gerarchia tipica: titolo pagina (`SliverAppBar.large`, headlineMedium) → `SectionTitle` (titleLarge) → titolo tile (titleMedium) → etichetta (titleSmall) → didascalia (bodySmall, `muted`).
+Font di sistema (Roboto). Titoli e display con peso 700–800 e tracking negativo; numeri con `tabularFigures`. Le pagine principali non hanno titolo (la barra di navigazione indica dove si è); la Home apre con il saluto. Gerarchia tipica: `SectionTitle` (titleLarge) → titolo tile (titleMedium) → etichetta (titleSmall) → didascalia (bodySmall, `muted`).
 
 ## Componenti (`lib/shared/widgets/`)
 
 | Componente | File | Quando usarlo |
 | --- | --- | --- |
-| `AppPage` | `app_page.dart` | Ogni schermata principale: titolo grande che si comprime, pull-to-refresh, padding per la barra flottante |
+| `AppPage` | `app_page.dart` | Ogni schermata principale: nessun titolo, barra sottile fissa con i comandi (alta zero se non ce ne sono), `bottom` opzionale, pull-to-refresh, padding per la barra flottante. `AppPage.barHeight` dà l'altezza della barra |
 | `PageSection`, `asyncSlivers` | `app_page.dart` | Contenuto a lista nel `CustomScrollView`; stati caricamento/errore |
 | `Tile` | `tiles.dart` | Superficie base (anche con gradiente, tap e semantica) |
 | `MetricTile` | `tiles.dart` | Numero grande + etichetta + didascalia, icon badge |
@@ -67,6 +71,10 @@ Font di sistema (Roboto). Titoli e display con peso 700–800 e tracking negativ
 | `YearSelector` | `year_selector.dart` | Pillola anno in alto a destra, apre un foglio |
 | `EmptyState` | `empty_state.dart` | Stato vuoto/errore con azione |
 | `SliverMonthGroups`, `DayBadge`, `CountBubble`, `SummaryPills` | `month_grouped_list.dart` | Liste per mese con swipe per cancellare |
+| `SliverEventCalendar`, `CalendarDay`, `CalendarWeekdayHeader` | `event_calendar.dart` | Calendario verticale a mesi (più recente in alto) con marcatore per i giorni con record; la riga L M M G V S D va nel `bottom` di `AppPage`. Margine laterale 12 dp (celle ≥ 48 dp) |
+| `HeartMark` | `heart_mark.dart` | Cuore pieno o diviso a metà in due colori, decorativo |
+| `showDayEventsSheet` | `day_events_sheet.dart` | Foglio con i record di un giorno; restituisce quello toccato |
+| `ListLayoutToggle` | `layout_toggle.dart` | Segmented a icone Lista / Calendario nell'app bar delle due liste |
 | `DateQuickPicker` | `form_widgets.dart` | Data con Oggi / Ieri / Altro giorno |
 | `ToggleTile` | `form_widgets.dart` | Interruttore importante a tutta larghezza |
 | `SelectableGrid` | `form_widgets.dart` | Scelta multipla a tile con icona (2–3 colonne) |

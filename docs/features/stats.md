@@ -25,7 +25,7 @@ Implementate in `StatsCalculator` (funzioni pure, nessun import Flutter, input m
 
 ## Layout
 
-Titolo grande "Statistiche" con pillola anno; sotto, fisso anche quando il titolo si comprime, un segmented a pillola **Attività / Masturbazioni** che cambia il contenuto della pagina (un solo scroll, niente `TabBarView`). Stile: `docs/knowledge/design-system.md`.
+Nessun titolo: barra sottile fissa con la pillola anno e, sotto, sempre visibile, un segmented a pillola **Attività / Masturbazioni** che cambia il contenuto della pagina (un solo scroll, niente `TabBarView`). Stile: `docs/knowledge/design-system.md`.
 
 ## Sezione Attività
 

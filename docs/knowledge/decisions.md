@@ -18,7 +18,7 @@ Registro delle scelte tecniche. Aggiungi una voce datata quando prendi una decis
 | Etichette di dominio extra | — | `practiceLabels`, `genderLabel*`, chiavi preferenze, parametri di query in `AppConfig` | Regola "nessun altro file contiene etichette/URL/parametri". |
 | Analisi statica | `flutter analyze` pulito | In più: `strict-casts`, `strict-inference`, `strict-raw-types` e lint extra | Qualità del codice. |
 | Codice generato | — | `*.freezed.dart` versionati | Il progetto compila subito dopo il clone. |
-| `versionCode` | — | `1.2.0+1` in `pubspec.yaml` | **Da verificare**: deve essere maggiore dell'ultimo `versionCode` caricato sul Play Store dalla vecchia app Capacitor, altrimenti l'upload fallisce. |
+| `versionCode` | — | `2.0.0+1` in `pubspec.yaml` | **Da verificare**: deve essere maggiore dell'ultimo `versionCode` caricato sul Play Store dalla vecchia app Capacitor, altrimenti l'upload fallisce. |
 | Icona adattiva | — | Sfondo `#33BEF9` (colore del bordo di `web-icon.png`), foreground con inset 16% | L'icona sorgente è un quadrato pieno: con questo sfondo la maschera non taglia il disegno. |
 | Splash | `flutter_native_splash` "se serve" | Generata con `flutter_native_splash` (sfondo chiaro/scuro del tema + icona) | Coerenza fra Android < 12 e ≥ 12. |
 | Back Android | modali prima, poi indietro | In più: dai tab diversi da Home il back porta a Home prima di uscire | Comportamento standard delle app con bottom bar. |
@@ -60,6 +60,29 @@ Richiesta del proprietario: colori più sul rosa/rosso e celeste, per richiamare
 | Gradiente hero e "+" | — | #E5304D → #F0569B |
 
 Nello stesso giro: tolto il titolo "Il vostro {anno}" dalla Home (il saluto fa da intestazione) e i fogli dal basso (anno, partner, "Cosa aggiungi?") si aprono sul navigator principale (`useRootNavigator: true`), così non finiscono sotto la barra flottante.
+
+## 2026-11-13 – Vista calendario
+
+Richiesta del proprietario: una variante a calendario delle liste, "come le app del ciclo", con un cuore nei giorni con record; nelle masturbazioni cuore rosso per una donna, blu per un uomo, bicolore se entrambi. Piano: `docs/plans/2026-11-13-calendar-view.md`, feature: `docs/features/calendar-view.md`.
+
+| Tema | Regola / prima | Scelta | Motivo |
+| --- | --- | --- | --- |
+| Colore dei cuori masturbazioni | Colori legati allo slot (A celeste, B rosa) | Colore dal **sesso** nel profilo: `genderFemale` rosso, `genderMale` blu nuovo (#2563EB / #60A5FA) | Richiesta esplicita. Il sesso viene dal profilo (ammesso dal vincolo 3 di `AGENTS.md`), mai dal nome. Il blu è distinto dal celeste dello slot A per non confondere i due significati. Usati solo dai cuori. |
+| Cuore bicolore | — | Metà sinistra = partner 1, metà destra = partner 2, ciascuna nel colore del proprio sesso; stesso sesso → metà uguali | Coerente con l'ordine degli slot; TalkBack legge comunque i nomi. |
+| Cuore attività | — | Un solo colore (`accent`) | Nessuna richiesta di distinguere le pratiche; il dettaglio è nel foglio. |
+| Anni nel calendario | Il selettore anno filtra le liste (B5) | Il calendario mostra tutti gli anni da `startYear`; la pillola anno porta il calendario a quell'anno | Un calendario "a scorrimento verso il passato" limitato a un anno non avrebbe senso. |
+| Preferenza vista | — | Una sola preferenza per i due tab (`settings.listLayout`) | Chi preferisce il calendario lo vuole ovunque. |
+| Margine laterale del calendario | 16 dp | 12 dp | Con 16 dp, su 360 dp la cella è ~47 dp (< 48 dp di target minimo); con 12 dp è 48 dp. |
+| Form da un altro anno | Il form cercava il record solo nell'anno selezionato | Query `?year=AAAA` sulle route di modifica; salvataggio e cancellazione via notifier dell'anno del record | Dal calendario si aprono record di qualsiasi anno; senza questo il form diceva "non trovata". |
+| Settimana | — | Da lunedì, iniziali da `intl` (`EEEEE`, it_IT) | Convenzione italiana. |
+
+## 2026-11-13 – Pagine senza titolo
+
+Richiesta del proprietario: i titoli grandi di Attività, Masturbazioni, Statistiche e Impostazioni occupano molto spazio e non servono, perché la barra in basso indica già la pagina. Piano: `docs/plans/2026-11-13-remove-page-titles.md`.
+
+| Tema | Prima | Ora | Motivo |
+| --- | --- | --- | --- |
+| Header delle pagine | `SliverAppBar.large` con titolo che si comprime (redesign 2026-11-12) | `AppPage` senza parametro `title`: barra sottile fissa con i soli comandi; alta zero (solo sfondo della status bar) se non ci sono comandi, come in Impostazioni | Più spazio per i contenuti; risolve anche il titolo compresso troncato ("Masturba…") della vista calendario. |
 
 ## Punti aperti (default applicati)
 

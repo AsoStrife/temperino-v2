@@ -121,8 +121,8 @@ La versione è in due posti, da tenere allineati:
 
 | Dove | Esempio | Significato |
 | --- | --- | --- |
-| `pubspec.yaml` → `version:` | `1.2.0+1` | `versionName+versionCode` usati da Android |
-| `lib/core/config/app_config.dart` → `appVersion` | `'1.2.0'` | Versione mostrata in Impostazioni |
+| `pubspec.yaml` → `version:` | `2.0.0+1` | `versionName+versionCode` usati da Android |
+| `lib/core/config/app_config.dart` → `appVersion` | `'2.0.0'` | Versione mostrata in Impostazioni |
 
 Il `versionCode` (numero dopo il `+`) deve crescere a ogni upload e deve essere **maggiore dell'ultimo caricato dalla vecchia app Capacitor** (controllalo in Play Console prima del primo rilascio).
 

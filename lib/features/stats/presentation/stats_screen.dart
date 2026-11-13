@@ -43,7 +43,6 @@ class _StatsScreenState extends ConsumerState<StatsScreen> {
   Widget build(BuildContext context) {
     final year = ref.watch(yearProvider);
     return AppPage(
-      title: 'Statistiche',
       actions: const [YearSelector()],
       onRefresh: () => HomeScreen.refreshYear(ref, year),
       bottom: PreferredSize(

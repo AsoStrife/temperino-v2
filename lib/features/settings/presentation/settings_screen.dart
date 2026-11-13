@@ -42,7 +42,6 @@ class SettingsScreen extends ConsumerWidget {
     final theme = Theme.of(context);
 
     return AppPage(
-      title: 'Impostazioni',
       slivers: [
         PageSection(
           children: [

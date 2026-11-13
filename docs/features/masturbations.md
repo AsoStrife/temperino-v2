@@ -4,11 +4,11 @@ Stile e componenti: `docs/knowledge/design-system.md`.
 
 ## Lista – `/masturbations`
 
-- Titolo grande "Masturbazioni" + pillola anno.
+- Nessun titolo (la pagina è indicata dalla barra in basso); nella barra sottile in alto a destra il selettore **Lista / Calendario** (`ListLayoutToggle`) e la pillola anno. La vista calendario (cuori rossi, blu o bicolori) è descritta in `calendar-view.md`.
 - Pillole di riepilogo: "N totali" e una per partner ("Andrea 42") nel colore del partner.
 - Gruppi per mese in contenitori arrotondati.
 - Riga: giorno, avatar del partner, nome nel colore del partner, pillola "Giocattoli" se `toys`, bolla con il numero di orgasmi.
-- Tap → modifica; swipe a sinistra → cancella con conferma; "+" accanto alla barra apre direttamente il form masturbazione.
+- Tap → modifica (`/masturbations/:id?year=AAAA`); swipe a sinistra → cancella con conferma; "+" accanto alla barra apre direttamente il form masturbazione.
 - Vuoto: "Non sono presenti masturbazioni" con "Aggiungi masturbazione". Pull-to-refresh. Errore con "Riprova".
 
 ## Form – `/masturbations/new`, `/masturbations/:id`
@@ -25,12 +25,14 @@ Salva (barra fissa in basso), Cancella (cestino nell'app bar), conferma di uscit
 
 - Modello `Masturbation` (`who: Partner`, `toys`, `orgasms`, `date: DateOnly`).
 - `masturbationsProvider(year)`: `add`, `edit`, `remove`, stessa invalidazione delle attività.
+- Il form in modifica cerca il record nell'anno della query `year` (senza query: anno selezionato) e salva/cancella tramite il notifier dell'anno del record.
 
 ## File
 
 - `lib/features/masturbations/domain/masturbation.dart`
 - `lib/features/masturbations/data/masturbation_dto.dart`, `masturbations_repository.dart`
 - `lib/features/masturbations/presentation/masturbations_providers.dart`, `masturbations_list_screen.dart`, `masturbation_form_screen.dart`
+- Vista calendario: vedi `calendar-view.md`
 
 ## Verifica manuale
 

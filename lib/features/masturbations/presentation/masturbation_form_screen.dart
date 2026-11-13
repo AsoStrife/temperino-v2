@@ -19,9 +19,13 @@ import 'masturbations_providers.dart';
 
 /// New masturbation (`id == null`) or edit of a record of the loaded list.
 class MasturbationFormScreen extends ConsumerStatefulWidget {
-  const MasturbationFormScreen({super.key, this.id});
+  const MasturbationFormScreen({super.key, this.id, this.year});
 
   final int? id;
+
+  /// Year of the record to edit (the calendar opens records of any year).
+  /// `null` means the selected year.
+  final int? year;
 
   @override
   ConsumerState<MasturbationFormScreen> createState() =>
@@ -38,7 +42,7 @@ class _MasturbationFormScreenState
     if (id == null) return const _MasturbationForm(initial: null);
     if (_record != null) return _MasturbationForm(initial: _record);
 
-    final year = ref.watch(yearProvider);
+    final int year = widget.year ?? ref.watch(yearProvider);
     final list = ref.watch(masturbationsProvider(year));
     return Scaffold(
       appBar: AppBar(title: const Text('Modifica masturbazione')),
@@ -96,7 +100,9 @@ class _MasturbationFormState extends ConsumerState<_MasturbationForm> {
 
   Future<void> _save() async {
     final messenger = ScaffoldMessenger.of(context);
-    final year = ref.read(yearProvider);
+    // Edits go through the list of the record's own year (it may differ from
+    // the selected year when the record was opened from the calendar).
+    final int year = widget.initial?.date.year ?? ref.read(yearProvider);
     final notifier = ref.read(masturbationsProvider(year).notifier);
     setState(() => _busy = FormBusy.saving);
     try {
@@ -128,7 +134,7 @@ class _MasturbationFormState extends ConsumerState<_MasturbationForm> {
     if (!confirmed || !mounted) return;
 
     final messenger = ScaffoldMessenger.of(context);
-    final year = ref.read(yearProvider);
+    final year = widget.initial!.date.year;
     setState(() => _busy = FormBusy.deleting);
     try {
       await ref.read(masturbationsProvider(year).notifier).remove(id);
