@@ -5,8 +5,16 @@ import '../../app/theme.dart';
 import '../../core/error/app_exception.dart';
 import '../../core/utils/date_only.dart';
 import '../../core/utils/formatters.dart';
+import 'adaptive.dart';
 import 'confirm_dialog.dart';
 import 'tiles.dart';
+
+/// Minimum width of a form column: from about 780 dp of content the form
+/// blocks go on two columns (tablets).
+const formColumnMinWidth = 380.0;
+
+/// Gap between the two columns of a form.
+const formColumnGap = 24.0;
 
 /// Operation currently running in a form. One state per form, always reset
 /// in `finally` (fix B7).
@@ -550,19 +558,28 @@ class SaveBar extends StatelessWidget {
         16,
         12 + MediaQuery.paddingOf(context).bottom,
       ),
-      child: FilledButton.icon(
-        onPressed: loading ? null : onPressed,
-        style: FilledButton.styleFrom(minimumSize: const Size.fromHeight(56)),
-        icon: loading
-            ? SizedBox.square(
-                dimension: 20,
-                child: CircularProgressIndicator(
-                  strokeWidth: 2.5,
-                  color: theme.colorScheme.onSurface,
-                ),
-              )
-            : const Icon(Icons.check_rounded),
-        label: Text(label),
+      // Full width on phones; centered and capped on wider windows.
+      child: Align(
+        heightFactor: 1,
+        child: ConstrainedBox(
+          constraints: const BoxConstraints(maxWidth: AppLayout.actionMaxWidth),
+          child: FilledButton.icon(
+            onPressed: loading ? null : onPressed,
+            style: FilledButton.styleFrom(
+              minimumSize: const Size.fromHeight(56),
+            ),
+            icon: loading
+                ? SizedBox.square(
+                    dimension: 20,
+                    child: CircularProgressIndicator(
+                      strokeWidth: 2.5,
+                      color: theme.colorScheme.onSurface,
+                    ),
+                  )
+                : const Icon(Icons.check_rounded),
+            label: Text(label),
+          ),
+        ),
       ),
     );
   }

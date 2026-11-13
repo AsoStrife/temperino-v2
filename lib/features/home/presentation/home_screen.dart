@@ -5,6 +5,7 @@ import 'package:go_router/go_router.dart';
 import '../../../app/router.dart';
 import '../../../app/theme.dart';
 import '../../../core/utils/formatters.dart';
+import '../../../shared/widgets/adaptive.dart';
 import '../../../shared/widgets/app_page.dart';
 import '../../../shared/widgets/partner_split.dart';
 import '../../../shared/widgets/tiles.dart';
@@ -43,80 +44,87 @@ class HomeScreen extends ConsumerWidget {
         onRetry: () => refreshYear(ref, year),
         data: (s) => [
           PageSection(
+            maxWidth: AppLayout.wideWidth,
             children: [
               Text(
                 'Ciao ${profile.nameOf(Partner.a)} e ${profile.nameOf(Partner.b)}',
                 style: Theme.of(context).textTheme.headlineMedium,
               ),
               const SizedBox(height: 16),
-              HeroTile(
-                label: 'Scopate',
-                value: '${s.sexCount}',
-                caption: 'su ${s.activityCount} attività nel $year',
-              ),
-              const SizedBox(height: 12),
-              PartnerSplitTile(
-                title: 'Orgasmi totali',
-                caption: 'Attività + masturbazioni',
-                profile: profile,
-                a: s.totalOrgasms.a,
-                b: s.totalOrgasms.b,
-              ),
-              const SizedBox(height: 12),
-              ResponsivePair(
-                first: MetricTile(
-                  icon: Icons.balance_rounded,
-                  color: context.appColors.accentInk,
-                  label: 'Rapporto D/A',
-                  value: Formatters.ratio(s.ratio),
-                  caption: 'durante il sesso',
-                ),
-                second: MetricTile(
-                  icon: Icons.back_hand_rounded,
-                  color: context.appColors.partnerAInk,
-                  label: 'Masturbazioni',
-                  value: '${masturbations.value?.total ?? '–'}',
-                  caption: 'nel $year',
-                  onTap: () => context.go(Routes.masturbations),
-                ),
-              ),
-              const SectionTitle('Aggiungi'),
-              ResponsivePair(
-                first: _QuickAdd(
-                  icon: Icons.favorite_rounded,
-                  label: 'Nuova attività',
-                  onTap: () => context.push(Routes.newActivity),
-                ),
-                second: _QuickAdd(
-                  icon: Icons.back_hand_rounded,
-                  label: 'Nuova masturbazione',
-                  onTap: () => context.push(Routes.newMasturbation),
-                ),
-              ),
-              const SizedBox(height: 12),
-              Tile(
-                onTap: () => context.go(Routes.stats),
-                semanticsLabel: 'Vedi tutte le statistiche',
-                padding: const EdgeInsets.all(16),
-                child: Row(
-                  children: [
-                    IconBadge(
-                      icon: Icons.insights_rounded,
+              // Two columns on tablets; stacked it is the phone order.
+              ResponsiveColumns(
+                start: [
+                  HeroTile(
+                    label: 'Scopate',
+                    value: '${s.sexCount}',
+                    caption: 'su ${s.activityCount} attività nel $year',
+                  ),
+                  const SizedBox(height: 12),
+                  PartnerSplitTile(
+                    title: 'Orgasmi totali',
+                    caption: 'Attività + masturbazioni',
+                    profile: profile,
+                    a: s.totalOrgasms.a,
+                    b: s.totalOrgasms.b,
+                  ),
+                ],
+                end: [
+                  ResponsivePair(
+                    first: MetricTile(
+                      icon: Icons.balance_rounded,
                       color: context.appColors.accentInk,
+                      label: 'Rapporto D/A',
+                      value: Formatters.ratio(s.ratio),
+                      caption: 'durante il sesso',
                     ),
-                    const SizedBox(width: 14),
-                    Expanded(
-                      child: Text(
-                        'Vedi tutte le statistiche',
-                        style: Theme.of(context).textTheme.titleMedium,
-                      ),
+                    second: MetricTile(
+                      icon: Icons.back_hand_rounded,
+                      color: context.appColors.partnerAInk,
+                      label: 'Masturbazioni',
+                      value: '${masturbations.value?.total ?? '–'}',
+                      caption: 'nel $year',
+                      onTap: () => context.go(Routes.masturbations),
                     ),
-                    Icon(
-                      Icons.arrow_forward_rounded,
-                      color: context.appColors.muted,
+                  ),
+                  const SectionTitle('Aggiungi'),
+                  ResponsivePair(
+                    first: _QuickAdd(
+                      icon: Icons.favorite_rounded,
+                      label: 'Nuova attività',
+                      onTap: () => context.push(Routes.newActivity),
                     ),
-                  ],
-                ),
+                    second: _QuickAdd(
+                      icon: Icons.back_hand_rounded,
+                      label: 'Nuova masturbazione',
+                      onTap: () => context.push(Routes.newMasturbation),
+                    ),
+                  ),
+                  const SizedBox(height: 12),
+                  Tile(
+                    onTap: () => context.go(Routes.stats),
+                    semanticsLabel: 'Vedi tutte le statistiche',
+                    padding: const EdgeInsets.all(16),
+                    child: Row(
+                      children: [
+                        IconBadge(
+                          icon: Icons.insights_rounded,
+                          color: context.appColors.accentInk,
+                        ),
+                        const SizedBox(width: 14),
+                        Expanded(
+                          child: Text(
+                            'Vedi tutte le statistiche',
+                            style: Theme.of(context).textTheme.titleMedium,
+                          ),
+                        ),
+                        Icon(
+                          Icons.arrow_forward_rounded,
+                          color: context.appColors.muted,
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
               ),
             ],
           ),

@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 
 import '../../../app/theme.dart';
 import '../../../core/utils/date_only.dart';
+import '../../../shared/widgets/adaptive.dart';
 import '../../../shared/widgets/async_body.dart';
 import '../../../shared/widgets/confirm_dialog.dart';
 import '../../../shared/widgets/empty_state.dart';
@@ -197,66 +198,85 @@ class _ActivityFormState extends ConsumerState<_ActivityForm> {
           loading: _busy == FormBusy.saving,
           onPressed: _idle ? _save : null,
         ),
-        body: ListView(
-          padding: const EdgeInsets.fromLTRB(16, 0, 16, 24),
+        body: PageListView(
+          maxWidth: AppLayout.wideWidth,
           children: [
-            const FormLabel('Quando'),
-            DateQuickPicker(
-              value: v.date,
-              enabled: _idle,
-              onChanged: (d) => _update((v) => v.copyWith(date: d)),
-            ),
-            const FormLabel('Com\'è andata'),
-            ToggleTile(
-              icon: practiceIcon(Practice.sex),
-              title: Practice.sex.label,
-              subtitle: 'Attivalo se è stata una scopata',
-              value: v.isSex,
-              onChanged: _idle ? (_) => _togglePractice(Practice.sex) : null,
-            ),
-            const SizedBox(height: 12),
-            SelectableGrid<Practice>(
-              enabled: _idle,
-              selected: v.practices,
-              onToggle: _togglePractice,
-              options: [
-                for (final p in Practice.values)
-                  if (p != Practice.sex)
-                    SelectableOption(p, p.label, practiceIcon(p)),
+            // Two columns on tablets (the form fits without scrolling in
+            // landscape); stacked it is the phone order.
+            ResponsiveColumns(
+              minColumnWidth: formColumnMinWidth,
+              gap: formColumnGap,
+              stackGap: 0,
+              start: [
+                const FormLabel('Quando'),
+                DateQuickPicker(
+                  value: v.date,
+                  enabled: _idle,
+                  onChanged: (d) => _update((v) => v.copyWith(date: d)),
+                ),
+                const FormLabel('Com\'è andata'),
+                ToggleTile(
+                  icon: practiceIcon(Practice.sex),
+                  title: Practice.sex.label,
+                  subtitle: 'Attivalo se è stata una scopata',
+                  value: v.isSex,
+                  onChanged: _idle
+                      ? (_) => _togglePractice(Practice.sex)
+                      : null,
+                ),
+                const SizedBox(height: 12),
+                SelectableGrid<Practice>(
+                  enabled: _idle,
+                  selected: v.practices,
+                  onToggle: _togglePractice,
+                  options: [
+                    for (final p in Practice.values)
+                      if (p != Practice.sex)
+                        SelectableOption(p, p.label, practiceIcon(p)),
+                  ],
+                ),
               ],
-            ),
-            const FormLabel('Orgasmi'),
-            ResponsivePair(
-              first: BigCounter(
-                leading: const PartnerAvatar(partner: Partner.a, radius: 12),
-                label: profile.nameOf(Partner.a),
-                color: c.partnerInk(Partner.a),
-                value: v.orgasmA,
-                onChanged: _idle
-                    ? (n) => _update((v) => v.copyWith(orgasmA: n))
-                    : null,
-              ),
-              second: BigCounter(
-                leading: const PartnerAvatar(partner: Partner.b, radius: 12),
-                label: profile.nameOf(Partner.b),
-                color: c.partnerInk(Partner.b),
-                value: v.orgasmB,
-                onChanged: _idle
-                    ? (n) => _update((v) => v.copyWith(orgasmB: n))
-                    : null,
-              ),
-            ),
-            const FormLabel('Zona della sborrata'),
-            ChoiceChipsWrap<CumshotZone>(
-              enabled: _idle,
-              // "none" first: it is the default.
-              options: [
-                CumshotZone.none,
-                ...CumshotZone.values.where((z) => z != CumshotZone.none),
+              end: [
+                const FormLabel('Orgasmi'),
+                ResponsivePair(
+                  first: BigCounter(
+                    leading: const PartnerAvatar(
+                      partner: Partner.a,
+                      radius: 12,
+                    ),
+                    label: profile.nameOf(Partner.a),
+                    color: c.partnerInk(Partner.a),
+                    value: v.orgasmA,
+                    onChanged: _idle
+                        ? (n) => _update((v) => v.copyWith(orgasmA: n))
+                        : null,
+                  ),
+                  second: BigCounter(
+                    leading: const PartnerAvatar(
+                      partner: Partner.b,
+                      radius: 12,
+                    ),
+                    label: profile.nameOf(Partner.b),
+                    color: c.partnerInk(Partner.b),
+                    value: v.orgasmB,
+                    onChanged: _idle
+                        ? (n) => _update((v) => v.copyWith(orgasmB: n))
+                        : null,
+                  ),
+                ),
+                const FormLabel('Zona della sborrata'),
+                ChoiceChipsWrap<CumshotZone>(
+                  enabled: _idle,
+                  // "none" first: it is the default.
+                  options: [
+                    CumshotZone.none,
+                    ...CumshotZone.values.where((z) => z != CumshotZone.none),
+                  ],
+                  selected: v.cumshot,
+                  labelOf: (z) => z.label,
+                  onSelected: (z) => _update((v) => v.copyWith(cumshot: z)),
+                ),
               ],
-              selected: v.cumshot,
-              labelOf: (z) => z.label,
-              onSelected: (z) => _update((v) => v.copyWith(cumshot: z)),
             ),
           ],
         ),

@@ -51,3 +51,7 @@ In modifica il record viene dalla lista già caricata dell'anno indicato dalla q
 3. Nuova attività con "Ieri" → compare nella lista sotto la data giusta. ⬜ (scrittura sul backend non provata)
 4. Swipe per cancellare → conferma → sparisce; Annulla → la riga torna. ⬜
 5. Modalità aereo + Salva → SnackBar di errore, form ancora modificabile. ⬜
+
+## Tablet
+
+Sui tablet: lista centrata a 760 dp; il form va su due colonne (Quando + Com'è andata │ Orgasmi + Zona) con "Salva" centrato. Dettagli in `tablet-layout.md`.

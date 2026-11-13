@@ -5,6 +5,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../core/config/app_config.dart';
 import '../features/settings/data/theme_preference.dart';
+import '../shared/widgets/adaptive.dart';
 import 'router.dart';
 import 'theme.dart';
 
@@ -30,11 +31,26 @@ class TemperinoApp extends ConsumerWidget {
       localizationsDelegates: GlobalMaterialLocalizations.delegates,
       builder: (context, child) {
         // Status/navigation bar icons follow the effective theme brightness.
-        final style = systemOverlayFor(Theme.of(context).brightness);
+        final theme = Theme.of(context);
+        final style = systemOverlayFor(theme.brightness);
         SystemChrome.setSystemUIOverlayStyle(style);
+        // Floating SnackBars: full width on phones, fixed and centered on
+        // wider windows. The Theme is always present so that crossing the
+        // breakpoint (rotation) does not rebuild the app subtree.
+        final wide = MediaQuery.sizeOf(context).width >= AppLayout.mediumWidth;
+        final content = Theme(
+          data: wide
+              ? theme.copyWith(
+                  snackBarTheme: theme.snackBarTheme.copyWith(
+                    width: AppLayout.actionMaxWidth,
+                  ),
+                )
+              : theme,
+          child: child ?? const SizedBox.shrink(),
+        );
         return AnnotatedRegion<SystemUiOverlayStyle>(
           value: style,
-          child: child ?? const SizedBox.shrink(),
+          child: content,
         );
       },
     );

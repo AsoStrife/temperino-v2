@@ -26,6 +26,10 @@ class _CalendarHeatmapState extends State<CalendarHeatmap> {
   static const _labelWidth = 22.0;
   static const _gap = 2.0;
 
+  /// Max cell side: phones never reach it; on tablets the grid grows up to
+  /// this size and is centered in the card.
+  static const _maxCell = 24.0;
+
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
@@ -51,11 +55,15 @@ class _CalendarHeatmapState extends State<CalendarHeatmap> {
       child: LayoutBuilder(
         builder: (context, constraints) {
           final cell = math.min(
-            16.0,
+            _maxCell,
             (constraints.maxWidth - _labelWidth) / 31 - _gap,
           );
+          final width = math.min(
+            constraints.maxWidth,
+            _labelWidth + 31 * (cell + _gap),
+          );
           final height = 12 * (cell + _gap);
-          return GestureDetector(
+          final grid = GestureDetector(
             onTapUp: (details) {
               final p = details.localPosition;
               final col = ((p.dx - _labelWidth) / (cell + _gap)).floor();
@@ -67,7 +75,7 @@ class _CalendarHeatmapState extends State<CalendarHeatmap> {
               setState(() => _selected = DateOnly(data.year, month, day));
             },
             child: CustomPaint(
-              size: Size(constraints.maxWidth, height),
+              size: Size(width, height),
               painter: _HeatmapPainter(
                 data: data,
                 cell: cell,
@@ -84,6 +92,7 @@ class _CalendarHeatmapState extends State<CalendarHeatmap> {
               ),
             ),
           );
+          return Center(child: grid);
         },
       ),
     );

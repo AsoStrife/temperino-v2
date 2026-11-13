@@ -4,6 +4,7 @@ import 'package:flutter/services.dart';
 import '../../app/theme.dart';
 import '../../core/utils/date_only.dart';
 import '../../core/utils/formatters.dart';
+import 'adaptive.dart';
 import 'confirm_dialog.dart';
 import 'tiles.dart';
 
@@ -60,9 +61,8 @@ class SliverMonthGroups<T> extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final c = context.appColors;
-    return SliverPadding(
-      padding: const EdgeInsets.symmetric(horizontal: 16),
-      sliver: SliverList.builder(
+    return SliverPageWidth(
+      builder: (context, _) => SliverList.builder(
         itemCount: groups.length,
         itemBuilder: (context, index) {
           final g = groups[index];
@@ -222,9 +222,8 @@ class SummaryPills extends StatelessWidget {
   final List<Pill> pills;
 
   @override
-  Widget build(BuildContext context) => SliverPadding(
-    padding: const EdgeInsets.fromLTRB(16, 0, 16, 0),
-    sliver: SliverToBoxAdapter(
+  Widget build(BuildContext context) => SliverPageWidth(
+    builder: (context, _) => SliverToBoxAdapter(
       child: Wrap(spacing: 8, runSpacing: 8, children: pills),
     ),
   );

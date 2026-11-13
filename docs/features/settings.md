@@ -31,3 +31,7 @@ Route `/settings`, ultimo tab. Stile "inset grouped": righe in contenitori arrot
 1. Cambio anno → Home e liste mostrano l'anno nuovo; riavvio → l'anno resta.
 2. Tema Scuro → app scura e icone della status bar chiare. ✅ emulatore 12/11/2026.
 3. Modifica del nome del partner 2 → la lista attività mostra il nuovo nome.
+
+## Tablet
+
+Sui tablet la pagina è centrata, larga al massimo 760 dp. Dettagli in `tablet-layout.md`.

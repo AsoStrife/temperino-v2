@@ -65,3 +65,7 @@ Ogni grafico è dentro `ChartCard` (una `Tile`) con un `semanticsLabel` che rias
 5. Confronto anni mostra una linea per ogni anno da 2024.
 6. TalkBack legge la descrizione di ogni grafico.
 7. Layout ridisegnato verificato su emulatore il 12/11/2026 (sezioni Attività e Masturbazioni).
+
+## Tablet
+
+Sui tablet: le 4 metriche in una riga, confronti e grafici affiancati a coppie, heatmap con celle fino a 24 dp e centrata, selettore Attività/Masturbazioni centrato (max 480 dp); nel tab Masturbazioni tile dei partner, confronto e ciambella affiancati. Dettagli in `tablet-layout.md`.

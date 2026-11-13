@@ -46,7 +46,7 @@ Regola: **mai** usare `partnerA`/`partnerB`/`accent` per testo piccolo su tile c
 | `AppRadii.inner` | 16 | Campi, snackbar, menu |
 | `AppRadii.small` | 12 | Icon badge |
 | Pillola | `StadiumBorder` | Bottoni, chip, segmented, selettore anno |
-| Margine pagina | 16 | Orizzontale |
+| Margine pagina | 16 / 24 / 32 | Orizzontale, per classe di larghezza (`AppLayout.gutter`, vedi "Schermi grandi") |
 | Gap fra tile | 12 | Verticale e orizzontale |
 | Spazio prima di una sezione | 28 (`SectionTitle`) | |
 
@@ -59,7 +59,11 @@ Font di sistema (Roboto). Titoli e display con peso 700–800 e tracking negativ
 | Componente | File | Quando usarlo |
 | --- | --- | --- |
 | `AppPage` | `app_page.dart` | Ogni schermata principale: nessun titolo, barra sottile fissa con i comandi (alta zero se non ce ne sono), `bottom` opzionale, pull-to-refresh, padding per la barra flottante. `AppPage.barHeight` dà l'altezza della barra |
-| `PageSection`, `asyncSlivers` | `app_page.dart` | Contenuto a lista nel `CustomScrollView`; stati caricamento/errore |
+| `PageSection`, `asyncSlivers` | `app_page.dart` | Contenuto a lista nel `CustomScrollView` con margine adattivo e `maxWidth` (760 di default, `AppLayout.wideWidth` per le pagine a colonne); stati caricamento/errore |
+| `AppLayout` | `adaptive.dart` | Breakpoint, margini, larghezze massime, `columns`, `useRail` (vedi "Schermi grandi") |
+| `SliverPageWidth`, `PageListView` | `adaptive.dart` | Sliver / `ListView` con margine adattivo e contenuto centrato entro `maxWidth`; lo scroll resta a tutta larghezza |
+| `ResponsiveGrid` | `adaptive.dart` | Tile in righe di N colonne (minimo `minItemWidth`), impilate con gap 12 quando non ci stanno. `equalHeight` solo per figli senza grafici né `LayoutBuilder` |
+| `ResponsiveColumns` | `adaptive.dart` | Due colonne di blocchi (`start` / `end`); impilate danno l'ordine del telefono |
 | `Tile` | `tiles.dart` | Superficie base (anche con gradiente, tap e semantica) |
 | `MetricTile` | `tiles.dart` | Numero grande + etichetta + didascalia, icon badge |
 | `HeroTile` | `tiles.dart` | Dato principale della Home, gradiente |
@@ -71,7 +75,7 @@ Font di sistema (Roboto). Titoli e display con peso 700–800 e tracking negativ
 | `YearSelector` | `year_selector.dart` | Pillola anno in alto a destra, apre un foglio |
 | `EmptyState` | `empty_state.dart` | Stato vuoto/errore con azione |
 | `SliverMonthGroups`, `DayBadge`, `CountBubble`, `SummaryPills` | `month_grouped_list.dart` | Liste per mese con swipe per cancellare |
-| `SliverEventCalendar`, `CalendarDay`, `CalendarWeekdayHeader` | `event_calendar.dart` | Calendario verticale a mesi (più recente in alto) con marcatore per i giorni con record; la riga L M M G V S D va nel `bottom` di `AppPage`. Margine laterale 12 dp (celle ≥ 48 dp) |
+| `SliverEventCalendar`, `CalendarDay`, `CalendarWeekdayHeader` | `event_calendar.dart` | Calendario verticale a mesi (più recente in alto) con marcatore per i giorni con record; la riga L M M G V S D va nel `bottom` di `AppPage` solo con una colonna. Margine laterale 12 dp sul telefono (celle ≥ 48 dp); sui tablet griglia di 2–3 mesi (`columnsFor`) |
 | `HeartMark` | `heart_mark.dart` | Cuore pieno o diviso a metà in due colori, decorativo |
 | `showDayEventsSheet` | `day_events_sheet.dart` | Foglio con i record di un giorno; restituisce quello toccato |
 | `ListLayoutToggle` | `layout_toggle.dart` | Segmented a icone Lista / Calendario nell'app bar delle due liste |
@@ -80,17 +84,43 @@ Font di sistema (Roboto). Titoli e display con peso 700–800 e tracking negativ
 | `SelectableGrid` | `form_widgets.dart` | Scelta multipla a tile con icona (2–3 colonne) |
 | `ChoiceChipsWrap` | `form_widgets.dart` | Scelta singola fra molte opzioni brevi |
 | `BigCounter` | `form_widgets.dart` | Contatore grande con − / + |
-| `SaveBar` | `form_widgets.dart` | Azione principale fissa in fondo ai form |
+| `SaveBar` | `form_widgets.dart` | Azione principale fissa in fondo ai form (bottone centrato, max 480 dp sui tablet). I form usano `PageListView` + `ResponsiveColumns` (`formColumnMinWidth`, `formColumnGap`) |
 | `FormLabel`, `confirmDiscard` | `form_widgets.dart` | Etichette dei blocchi, conferma uscita con modifiche |
 | `showConfirmDialog` | `confirm_dialog.dart` | Conferme (cancellazioni sempre) |
 | `PartnerAvatar` | `partner_avatar.dart` | Avatar con anello nel colore del partner |
 
 ## Navigazione
 
-- Barra flottante a pillola (`lib/app/shell_scaffold.dart`) con 5 icone (etichetta in tooltip e semantica) e sfocatura dello sfondo; a fianco il pulsante "+" circolare con gradiente.
+- Barra flottante a pillola (`lib/app/shell_scaffold.dart`) con 5 icone (etichetta in tooltip e semantica) e sfocatura dello sfondo; a fianco il pulsante "+" circolare con gradiente. Sui tablet centrata (max 560 dp) o, in orizzontale, rail verticale a sinistra con il "+" sotto (vedi "Schermi grandi").
 - "+" contestuale: tab Attività → nuova attività; tab Masturbazioni → nuova masturbazione; altrove → foglio "Cosa aggiungi?".
 - Il contenuto scorre sotto la barra (`extendBody`): le pagine aggiungono `MediaQuery.paddingOf(context).bottom` in fondo (già fatto da `AppPage`).
 - I form si aprono come "fullscreen dialog" (icona X), con `SaveBar` in basso e cancellazione nell'app bar.
+
+## Schermi grandi (tablet)
+
+Studio e motivazioni: `tablet-usability.md`. Feature: `docs/features/tablet-layout.md`.
+
+**Regola d'oro: sotto 600 dp nulla cambia.** Ogni layout adattivo, quando non c'è spazio, deve degradare esattamente nel layout del telefono (stesso ordine, stessi gap).
+
+| Token (`AppLayout`) | Valore | Uso |
+| --- | --- | --- |
+| `mediumWidth` / `expandedWidth` | 600 / 840 dp | Classi di larghezza Material 3 (compatta, media, espansa) |
+| `gutter(width)` | 16 / 24 / 32 | Margine laterale per classe |
+| `readableWidth` | 760 | Larghezza massima di liste, impostazioni, onboarding |
+| `wideWidth` | 1200 | Larghezza massima di pagine a colonne: Home, Statistiche, calendario, form |
+| `navBarMaxWidth` | 560 | Barra flottante + "+" sui tablet |
+| `actionMaxWidth` | 480 | SnackBar, bottone di `SaveBar`, selettore delle Statistiche |
+| `railMinHeight` | 480 | Altezza minima della finestra per la rail |
+
+- **Spazio, non dispositivo.** Il layout del contenuto si decide con `LayoutBuilder` / `SliverLayoutBuilder` sulla larghezza disponibile; `MediaQuery.sizeOf` solo per la navigazione (`AppLayout.useRail`). Mai `isTablet`.
+- **Colonne.** `AppLayout.columns` moltiplica la larghezza minima per il fattore di scala del testo: con caratteri grandi si torna a una colonna.
+- **Navigazione.** Barra flottante centrata (max 560) da 600 dp; rail verticale a sinistra se la finestra è ≥ 840, più larga che alta e alta ≥ 480. La shell mantiene lo stesso albero nei due modi (la rail si inserisce prima del contenuto), così la rotazione non perde lo stato.
+- **Contenuto centrato, scroll a tutta larghezza.** Non avvolgere `CustomScrollView`/`ListView` in un `ConstrainedBox`: usare il padding (`SliverPageWidth`, `PageListView`), così si trascina e si fa pull-to-refresh anche sui margini.
+- **Controlli singoli larghi** (bottoni principali, segmented): pieni sul telefono, centrati e limitati a `actionMaxWidth` altrove.
+- **Fogli dal basso**: Material 3 li limita già a 640 dp; non serve altro.
+- **Calendario**: `SliverEventCalendar.columnsFor` (1/2/3 colonne di mesi, minimo 340 dp per mese); con più colonne niente `CalendarWeekdayHeader` fisso: ogni mese ha la sua riga dei giorni e 6 settimane.
+- **Wrapper condizionali**: non inserire/togliere widget genitori in base alla larghezza sopra sottoalberi con stato (navigator, form): passare il valore al widget già presente (es. il `Theme` delle SnackBar in `app.dart`).
+- Verifica: emulatore tablet in verticale **e** orizzontale, chiaro **e** scuro, più il telefono per confermare che non è cambiato.
 
 ## Grafici
 

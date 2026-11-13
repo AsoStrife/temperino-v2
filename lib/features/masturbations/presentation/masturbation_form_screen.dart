@@ -5,6 +5,7 @@ import 'package:go_router/go_router.dart';
 
 import '../../../app/theme.dart';
 import '../../../core/utils/date_only.dart';
+import '../../../shared/widgets/adaptive.dart';
 import '../../../shared/widgets/async_body.dart';
 import '../../../shared/widgets/confirm_dialog.dart';
 import '../../../shared/widgets/empty_state.dart';
@@ -191,52 +192,62 @@ class _MasturbationFormState extends ConsumerState<_MasturbationForm> {
           loading: _busy == FormBusy.saving,
           onPressed: _idle ? _save : null,
         ),
-        body: ListView(
-          padding: const EdgeInsets.fromLTRB(16, 0, 16, 24),
+        body: PageListView(
+          maxWidth: AppLayout.wideWidth,
           children: [
-            const FormLabel('Chi'),
-            ResponsivePair(
-              first: _PartnerChoice(
-                partner: Partner.a,
-                name: profile.nameOf(Partner.a),
-                selected: v.who == Partner.a,
-                onTap: _idle
-                    ? () => _update((v) => v.copyWith(who: Partner.a))
-                    : null,
-              ),
-              second: _PartnerChoice(
-                partner: Partner.b,
-                name: profile.nameOf(Partner.b),
-                selected: v.who == Partner.b,
-                onTap: _idle
-                    ? () => _update((v) => v.copyWith(who: Partner.b))
-                    : null,
-              ),
-            ),
-            const FormLabel('Quando'),
-            DateQuickPicker(
-              value: v.date,
-              enabled: _idle,
-              onChanged: (d) => _update((v) => v.copyWith(date: d)),
-            ),
-            const FormLabel('Dettagli'),
-            ToggleTile(
-              icon: Icons.vibration_rounded,
-              title: 'Giocattoli',
-              subtitle: 'Con vibratore o altri giochi',
-              value: v.toys,
-              onChanged: _idle
-                  ? (on) => _update((v) => v.copyWith(toys: on))
-                  : null,
-            ),
-            const SizedBox(height: 12),
-            BigCounter(
-              label: 'Orgasmi',
-              color: c.partnerInk(v.who),
-              value: v.orgasms,
-              onChanged: _idle
-                  ? (n) => _update((v) => v.copyWith(orgasms: n))
-                  : null,
+            // Two columns on tablets; stacked it is the phone order.
+            ResponsiveColumns(
+              minColumnWidth: formColumnMinWidth,
+              gap: formColumnGap,
+              stackGap: 0,
+              start: [
+                const FormLabel('Chi'),
+                ResponsivePair(
+                  first: _PartnerChoice(
+                    partner: Partner.a,
+                    name: profile.nameOf(Partner.a),
+                    selected: v.who == Partner.a,
+                    onTap: _idle
+                        ? () => _update((v) => v.copyWith(who: Partner.a))
+                        : null,
+                  ),
+                  second: _PartnerChoice(
+                    partner: Partner.b,
+                    name: profile.nameOf(Partner.b),
+                    selected: v.who == Partner.b,
+                    onTap: _idle
+                        ? () => _update((v) => v.copyWith(who: Partner.b))
+                        : null,
+                  ),
+                ),
+                const FormLabel('Quando'),
+                DateQuickPicker(
+                  value: v.date,
+                  enabled: _idle,
+                  onChanged: (d) => _update((v) => v.copyWith(date: d)),
+                ),
+              ],
+              end: [
+                const FormLabel('Dettagli'),
+                ToggleTile(
+                  icon: Icons.vibration_rounded,
+                  title: 'Giocattoli',
+                  subtitle: 'Con vibratore o altri giochi',
+                  value: v.toys,
+                  onChanged: _idle
+                      ? (on) => _update((v) => v.copyWith(toys: on))
+                      : null,
+                ),
+                const SizedBox(height: 12),
+                BigCounter(
+                  label: 'Orgasmi',
+                  color: c.partnerInk(v.who),
+                  value: v.orgasms,
+                  onChanged: _idle
+                      ? (n) => _update((v) => v.copyWith(orgasms: n))
+                      : null,
+                ),
+              ],
             ),
           ],
         ),

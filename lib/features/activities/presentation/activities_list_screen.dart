@@ -5,6 +5,7 @@ import 'package:go_router/go_router.dart';
 import '../../../app/router.dart';
 import '../../../app/theme.dart';
 import '../../../core/utils/date_only.dart';
+import '../../../shared/widgets/adaptive.dart';
 import '../../../shared/widgets/app_page.dart';
 import '../../../shared/widgets/day_events_sheet.dart';
 import '../../../shared/widgets/empty_state.dart';
@@ -103,20 +104,31 @@ class _ActivitiesListScreenState extends ConsumerState<ActivitiesListScreen> {
     });
 
     if (layout == ListLayout.calendar) {
-      return AppPage(
-        actions: [
-          IconButton(
-            tooltip: 'Vai a oggi',
-            icon: const Icon(Icons.today_rounded),
-            onPressed: _showToday,
-          ),
-          const ListLayoutToggle(),
-          const SizedBox(width: 8),
-          const YearSelector(),
-        ],
-        bottom: const CalendarWeekdayHeader(),
-        onRefresh: _refreshAllYears,
-        slivers: _calendarSlivers(context, year),
+      // The pinned weekday row only fits a single column of months; in the
+      // tablet grid every month has its own.
+      return LayoutBuilder(
+        builder: (context, box) => AppPage(
+          actions: [
+            IconButton(
+              tooltip: 'Vai a oggi',
+              icon: const Icon(Icons.today_rounded),
+              onPressed: _showToday,
+            ),
+            const ListLayoutToggle(),
+            const SizedBox(width: 8),
+            const YearSelector(),
+          ],
+          bottom:
+              SliverEventCalendar.columnsFor(
+                    box.maxWidth,
+                    textScale: textScaleOf(context),
+                  ) ==
+                  1
+              ? const CalendarWeekdayHeader()
+              : null,
+          onRefresh: _refreshAllYears,
+          slivers: _calendarSlivers(context, year),
+        ),
       );
     }
 

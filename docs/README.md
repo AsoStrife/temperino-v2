@@ -12,6 +12,7 @@ Regole su come e quando aggiornare questi file: `AGENTS.md` nella radice.
 | [masturbations.md](features/masturbations.md) | Lista e form delle masturbazioni |
 | [calendar-view.md](features/calendar-view.md) | Vista calendario di attività e masturbazioni (cuori, foglio del giorno) |
 | [stats.md](features/stats.md) | Statistiche, definizioni e grafici |
+| [tablet-layout.md](features/tablet-layout.md) | Layout adattivo per tablet: navigazione, colonne, calendario a griglia |
 | [settings.md](features/settings.md) | Impostazioni, anno selezionato, tema |
 | [app-shell-theme.md](features/app-shell-theme.md) | Navigazione, back Android, tema, status bar, icona e splash |
 | [config-networking.md](features/config-networking.md) | `AppConfig`, client HTTP, errori, utilità |
@@ -26,6 +27,7 @@ Regole su come e quando aggiornare questi file: `AGENTS.md` nella radice.
 | [design-system.md](knowledge/design-system.md) | Token di colore, forme, tipografia, componenti, regole UI |
 | [decisions.md](knowledge/decisions.md) | Decisioni e deviazioni dalla specifica, punti aperti |
 | [environment.md](knowledge/environment.md) | Toolchain, Android, versioni delle dipendenze |
+| [tablet-usability.md](knowledge/tablet-usability.md) | Studio di usabilità per tablet (Xiaomi Pad 7): problemi, decisioni, principi |
 
 ## Piani (`plans/`)
 
@@ -36,3 +38,4 @@ Regole su come e quando aggiornare questi file: `AGENTS.md` nella radice.
 | [2026-11-12-ui-redesign.md](plans/2026-11-12-ui-redesign.md) | ✅ Redesign completo della UI |
 | [2026-11-13-calendar-view.md](plans/2026-11-13-calendar-view.md) | ✅ Vista calendario per attività e masturbazioni |
 | [2026-11-13-remove-page-titles.md](plans/2026-11-13-remove-page-titles.md) | ✅ Pagine senza titolo grande |
+| [2026-11-13-tablet-support.md](plans/2026-11-13-tablet-support.md) | ✅ Supporto tablet in verticale e orizzontale |

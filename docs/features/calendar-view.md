@@ -10,6 +10,7 @@ In vista calendario:
 
 - Calendario verticale in stile app del ciclo: un mese per blocco, **il mese corrente in alto**, scorrendo verso il basso si va nel passato fino a gennaio di `AppConfig.startYear`.
 - Fissa sotto la barra dei comandi, la riga dei giorni della settimana **L M M G V S D** (settimana da lunedì).
+- **Tablet**: i mesi sono in una griglia di 2 colonne (verticale) o 3 (orizzontale), dal più recente in alto a sinistra; ogni mese ha la propria riga dei giorni e 6 righe di settimane, e la riga fissa sotto la barra non c'è. Dettagli in `tablet-layout.md`.
 - Ogni mese: titolo "Novembre 2026" con il numero di record del mese a destra, poi la griglia dei giorni in una tile.
 - Oggi: numero in grassetto su cerchio tonale rosso. Giorni futuri: numero attenuato.
 - Giorni con record: numero in grassetto e **cuore** sotto il numero; la cella è tappabile (feedback aptico).
@@ -46,6 +47,8 @@ Il colore segue il **sesso nel profilo locale**, non lo slot: se nel profilo si 
 ## Scorrimento a un mese
 
 `SliverEventCalendar` usa `SliverVariedExtentList`: l'altezza di ogni mese è calcolata in anticipo (`_Metrics`: titolo + righe × altezza riga, in funzione di larghezza e scala del testo). Così `showMonth` calcola l'offset esatto anche per mesi mai costruiti: `precedingScrollExtent` della sliver + somma delle altezze dei mesi precedenti − altezza della barra fissa di `AppPage` (status bar + `AppPage.barHeight`: toolbar 56 + riga dei giorni 36).
+
+In griglia (tablet) ogni elemento della lista è una **riga di mesi** con altezza fissa (6 settimane + riga dei giorni), l'indice è `mese ~/ colonne` e la barra fissa non include la riga dei giorni. Le colonne sono calcolate con `SliverEventCalendar.columnsFor(larghezza)` sia dalla sliver sia dalla schermata (che decide se mostrare `CalendarWeekdayHeader`), sulla stessa larghezza.
 
 ## File
 

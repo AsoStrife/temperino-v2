@@ -28,3 +28,7 @@ Pull-to-refresh: ricarica le due liste dell'anno (`HomeScreen.refreshYear`). Car
 2. Cambio anno dalla pillola → valori aggiornati senza riavvio.
 3. Senza rete → stato di errore con "Riprova".
 4. Verificato su emulatore il 12/11/2026 (chiaro e scuro, testo ingrandito).
+
+## Tablet
+
+Sui tablet: saluto, poi due colonne (hero + orgasmi totali │ metriche, "Aggiungi", statistiche), larghezza massima 1200 dp. Dettagli in `tablet-layout.md`.

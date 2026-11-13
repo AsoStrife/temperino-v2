@@ -84,9 +84,28 @@ Richiesta del proprietario: i titoli grandi di Attività, Masturbazioni, Statist
 | --- | --- | --- | --- |
 | Header delle pagine | `SliverAppBar.large` con titolo che si comprime (redesign 2026-11-12) | `AppPage` senza parametro `title`: barra sottile fissa con i soli comandi; alta zero (solo sfondo della status bar) se non ci sono comandi, come in Impostazioni | Più spazio per i contenuti; risolve anche il titolo compresso troncato ("Masturba…") della vista calendario. |
 
+## 2026-11-13 – Supporto tablet
+
+Richiesta del proprietario: usare l'app anche sullo Xiaomi Pad 7, in verticale e in orizzontale, senza rifare l'interfaccia. Studio: `tablet-usability.md`; piano: `docs/plans/2026-11-13-tablet-support.md`; feature: `docs/features/tablet-layout.md`.
+
+| Tema | Prima | Scelta | Motivo |
+| --- | --- | --- | --- |
+| Criterio | Solo telefono | Breakpoint per larghezza in dp (600 / 840), mai per tipo di dispositivo | Regge schermo diviso, finestre flottanti, "dimensione display" di HyperOS e telefono in orizzontale. |
+| Telefono | — | Sotto 600 dp nulla cambia; i layout a colonne impilati danno l'ordine del telefono | Il layout del telefono è considerato definitivo dal proprietario. |
+| Navigazione tablet verticale | Barra a tutta larghezza | Barra centrata, max 560 dp | Icone vicine come sul telefono, raggiungibili col pollice. |
+| Navigazione tablet orizzontale | Barra in basso | Rail verticale a sinistra con "+" | Libera altezza (dimensione scarsa), sotto il pollice sinistro, pattern Material 3. Condizione `altezza ≥ 480` per escludere il telefono in orizzontale. |
+| Etichette nella rail | — | Solo tooltip, come sulla barra | "Masturbazioni"/"Impostazioni" non stanno in 64 dp; coerenza col telefono. |
+| Larghezza contenuti | Tutta la larghezza | 760 dp per liste/impostazioni/onboarding, 1200 dp per pagine a colonne; scroll a tutta larghezza | Righe leggibili; numeri vicini alle etichette. |
+| Liste | — | Solo centrate, nessuna lista-dettaglio | La lista-dettaglio cambierebbe navigazione, ritorno predittivo e conferma di uscita dei form: un rifacimento, non richiesto. |
+| Calendario | Una colonna | Griglia di 2–3 mesi con 6 settimane fisse | Celle proporzionate e 6 mesi visibili; mesi della stessa riga allineati. |
+| Form | Una colonna, tutto schermo | Tutto schermo, due colonne da ~780 dp, "Salva" centrato max 480 | Il form sta in una schermata in orizzontale; restano ritorno predittivo e conferma di uscita. Scartato il dialog centrato (comportamento diverso fra telefono e tablet, rotazione più fragile). |
+| SnackBar | Tutta la larghezza | 480 dp centrate da 600 dp, via `Theme` sempre presente in `MaterialApp.builder` | Un wrapper condizionale ricreerebbe l'albero dell'app alla rotazione. |
+| Verifica | — | AVD `Pad7_API_35` creato a mano (2136 × 3200, 320 dpi) | Nessun emulatore tablet disponibile; `cmdline-tools` assenti, quindi niente `avdmanager`. |
+
 ## Punti aperti (default applicati)
 
 - `minSdk` 24: confermare con la distribuzione dei dispositivi in Play Console.
-- Profilo locale: su un nuovo telefono l'onboarding va rifatto.
+- Profilo locale: su un nuovo telefono (o sul tablet) l'onboarding va rifatto.
+- Tablet: layout verificato su emulatore che imita il Pad 7, non ancora sul dispositivo reale.
 - Cumshot di default `none`; i record vecchi con valore vuoto vengono letti come `none` (e contati nella zona "Niente").
 - Sort Strapi: **risolto** – il backend ignora `sort`, l'ordinamento è nel client (vedi `backend-api.md`).

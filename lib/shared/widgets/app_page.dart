@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../core/error/app_exception.dart';
+import 'adaptive.dart';
 import 'empty_state.dart';
 
 /// Main page layout: slim pinned bar with the [actions] (no page title: the
@@ -64,17 +65,24 @@ class AppPage extends StatelessWidget {
   }
 }
 
-/// Horizontal page padding for a list of box widgets.
+/// List of box widgets with the adaptive page margin, centered within
+/// [maxWidth] (readable width by default, `AppLayout.wideWidth` for
+/// multi-column pages).
 class PageSection extends StatelessWidget {
-  const PageSection({super.key, required this.children});
+  const PageSection({
+    super.key,
+    required this.children,
+    this.maxWidth = AppLayout.readableWidth,
+  });
 
   final List<Widget> children;
+  final double maxWidth;
 
   @override
   Widget build(BuildContext context) {
-    return SliverPadding(
-      padding: const EdgeInsets.symmetric(horizontal: 16),
-      sliver: SliverList.list(children: children),
+    return SliverPageWidth(
+      maxWidth: maxWidth,
+      builder: (context, _) => SliverList.list(children: children),
     );
   }
 }

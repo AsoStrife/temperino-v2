@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../app/theme.dart';
+import '../../../shared/widgets/adaptive.dart';
 import '../../../shared/widgets/form_widgets.dart';
 import '../../../shared/widgets/partner_avatar.dart';
 import '../../../shared/widgets/tiles.dart';
@@ -75,8 +76,8 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
       ),
       body: SafeArea(
         bottom: false,
-        child: ListView(
-          padding: const EdgeInsets.fromLTRB(16, 32, 16, 24),
+        child: PageListView(
+          top: 32,
           children: [
             const Center(child: _CoupleBadge()),
             const SizedBox(height: 28),
@@ -92,39 +93,46 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
               style: theme.textTheme.bodyLarge?.copyWith(color: c.muted),
             ),
             const SizedBox(height: 28),
-            Tile(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: [
-                  const PartnerSlotHeader(partner: Partner.a),
-                  const SizedBox(height: 16),
-                  PartnerFields(
-                    nameController: _nameA,
-                    gender: _genderA,
-                    autofocus: true,
-                    onSubmitted: (_) => _focusB.requestFocus(),
-                    onGenderChanged: (g) => setState(() => _genderA = g),
+            // The two partners side by side on tablets.
+            ResponsiveColumns(
+              minColumnWidth: 320,
+              start: [
+                Tile(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      const PartnerSlotHeader(partner: Partner.a),
+                      const SizedBox(height: 16),
+                      PartnerFields(
+                        nameController: _nameA,
+                        gender: _genderA,
+                        autofocus: true,
+                        onSubmitted: (_) => _focusB.requestFocus(),
+                        onGenderChanged: (g) => setState(() => _genderA = g),
+                      ),
+                    ],
                   ),
-                ],
-              ),
-            ),
-            const SizedBox(height: 12),
-            Tile(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: [
-                  const PartnerSlotHeader(partner: Partner.b),
-                  const SizedBox(height: 16),
-                  PartnerFields(
-                    nameController: _nameB,
-                    focusNode: _focusB,
-                    gender: _genderB,
-                    textInputAction: TextInputAction.done,
-                    onSubmitted: (_) => _valid ? _continue() : null,
-                    onGenderChanged: (g) => setState(() => _genderB = g),
+                ),
+              ],
+              end: [
+                Tile(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      const PartnerSlotHeader(partner: Partner.b),
+                      const SizedBox(height: 16),
+                      PartnerFields(
+                        nameController: _nameB,
+                        focusNode: _focusB,
+                        gender: _genderB,
+                        textInputAction: TextInputAction.done,
+                        onSubmitted: (_) => _valid ? _continue() : null,
+                        onGenderChanged: (g) => setState(() => _genderB = g),
+                      ),
+                    ],
                   ),
-                ],
-              ),
+                ),
+              ],
             ),
           ],
         ),

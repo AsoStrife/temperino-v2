@@ -44,3 +44,7 @@ Lettura tollerante (`ProfileStore.read`): qualunque chiave mancante o non valida
 3. Completato l'onboarding → Home con i nomi inseriti. ✅
 4. Riavvio → direttamente la Home.
 5. Impostazioni → modifica nome/sesso → etichette aggiornate subito.
+
+## Tablet
+
+Sui tablet l'onboarding è largo al massimo 760 dp con i due partner affiancati. Dettagli in `tablet-layout.md`.

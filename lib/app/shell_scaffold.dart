@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:go_router/go_router.dart';
 
+import '../shared/widgets/adaptive.dart';
 import '../shared/widgets/tiles.dart';
 import 'router.dart';
 import 'theme.dart';
@@ -19,6 +20,10 @@ class _Destination {
 /// Shell with a floating pill navigation bar and a contextual "+" button.
 /// Each tab keeps its own stack (StatefulShellRoute.indexedStack); content
 /// scrolls behind the bar (`extendBody`).
+///
+/// On wide windows the bar is centered with a max width; on wide landscape
+/// windows (tablet held horizontally) it becomes a vertical rail on the left,
+/// next to the content (see `AppLayout.useRail`).
 class ShellScaffold extends StatelessWidget {
   const ShellScaffold({super.key, required this.navigationShell});
 
@@ -76,6 +81,15 @@ class ShellScaffold extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final onHome = navigationShell.currentIndex == 0;
+    final rail = AppLayout.useRail(MediaQuery.sizeOf(context));
+    final nav = _FloatingNavBar(
+      destinations: _destinations,
+      currentIndex: navigationShell.currentIndex,
+      onSelect: _onSelect,
+      axis: rail ? Axis.vertical : Axis.horizontal,
+    );
+    final add = _AddButton(onPressed: () => _onAdd(context));
+
     return PopScope(
       // Android back on a tab root other than Home goes to Home first.
       canPop: onHome,
@@ -84,24 +98,53 @@ class ShellScaffold extends StatelessWidget {
       },
       child: Scaffold(
         extendBody: true,
-        body: navigationShell,
-        bottomNavigationBar: SafeArea(
-          top: false,
-          minimum: const EdgeInsets.fromLTRB(16, 0, 16, 12),
-          child: Row(
-            children: [
-              Expanded(
-                child: _FloatingNavBar(
-                  destinations: _destinations,
-                  currentIndex: navigationShell.currentIndex,
-                  onSelect: _onSelect,
+        // Same tree in both modes (the rail is only inserted before the
+        // content), so rotating keeps the state of the tabs.
+        body: Row(
+          children: [
+            if (rail)
+              SafeArea(
+                right: false,
+                minimum: const EdgeInsets.fromLTRB(16, 16, 0, 16),
+                child: Center(
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [nav, const SizedBox(height: 12), add],
+                  ),
                 ),
               ),
-              const SizedBox(width: 10),
-              _AddButton(onPressed: () => _onAdd(context)),
-            ],
-          ),
+            Expanded(
+              // The rail already consumed the left system inset.
+              child: MediaQuery.removePadding(
+                context: context,
+                removeLeft: rail,
+                child: navigationShell,
+              ),
+            ),
+          ],
         ),
+        bottomNavigationBar: rail
+            ? null
+            : SafeArea(
+                top: false,
+                minimum: const EdgeInsets.fromLTRB(16, 0, 16, 12),
+                // Full width on phones, centered and capped on tablets.
+                child: Align(
+                  heightFactor: 1,
+                  child: ConstrainedBox(
+                    constraints: const BoxConstraints(
+                      maxWidth: AppLayout.navBarMaxWidth,
+                    ),
+                    child: Row(
+                      children: [
+                        Expanded(child: nav),
+                        const SizedBox(width: 10),
+                        add,
+                      ],
+                    ),
+                  ),
+                ),
+              ),
       ),
     );
   }
@@ -112,11 +155,15 @@ class _FloatingNavBar extends StatelessWidget {
     required this.destinations,
     required this.currentIndex,
     required this.onSelect,
+    this.axis = Axis.horizontal,
   });
 
   final List<_Destination> destinations;
   final int currentIndex;
   final ValueChanged<int> onSelect;
+
+  /// Horizontal bar at the bottom or vertical rail on the side.
+  final Axis axis;
 
   @override
   Widget build(BuildContext context) {
@@ -124,6 +171,19 @@ class _FloatingNavBar extends StatelessWidget {
     final scheme = Theme.of(context).colorScheme;
     final dark = Theme.of(context).brightness == Brightness.dark;
     const radius = BorderRadius.all(Radius.circular(32));
+    final vertical = axis == Axis.vertical;
+
+    Widget item(int i) => _NavItem(
+      destination: destinations[i],
+      selected: i == currentIndex,
+      onTap: () {
+        HapticFeedback.selectionClick();
+        onSelect(i);
+      },
+      selectedColor: scheme.primary,
+      selectedBackground: scheme.primaryContainer,
+      color: c.muted,
+    );
 
     return DecoratedBox(
       decoration: BoxDecoration(
@@ -141,29 +201,24 @@ class _FloatingNavBar extends StatelessWidget {
         child: BackdropFilter(
           filter: ui.ImageFilter.blur(sigmaX: 20, sigmaY: 20),
           child: Container(
-            height: 64,
-            padding: const EdgeInsets.symmetric(horizontal: 6),
+            height: vertical ? null : 64,
+            width: vertical ? 64 : null,
+            padding: vertical
+                ? const EdgeInsets.symmetric(vertical: 6)
+                : const EdgeInsets.symmetric(horizontal: 6),
             decoration: BoxDecoration(
               color: c.tile.withValues(alpha: 0.86),
               borderRadius: radius,
               border: Border.all(color: c.hairline),
             ),
-            child: Row(
+            child: Flex(
+              direction: axis,
+              mainAxisSize: vertical ? MainAxisSize.min : MainAxisSize.max,
               children: [
                 for (var i = 0; i < destinations.length; i++)
-                  Expanded(
-                    child: _NavItem(
-                      destination: destinations[i],
-                      selected: i == currentIndex,
-                      onTap: () {
-                        HapticFeedback.selectionClick();
-                        onSelect(i);
-                      },
-                      selectedColor: scheme.primary,
-                      selectedBackground: scheme.primaryContainer,
-                      color: c.muted,
-                    ),
-                  ),
+                  vertical
+                      ? SizedBox(height: 60, child: item(i))
+                      : Expanded(child: item(i)),
               ],
             ),
           ),

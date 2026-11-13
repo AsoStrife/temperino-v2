@@ -20,7 +20,7 @@ Schermate (ConsumerWidget)  ──watch──▶  Provider Riverpod  ──▶  
 | `lib/main.dart` | Edge-to-edge, `initializeDateFormatting('it_IT')`, `SharedPreferences`, `ProviderScope` (retry disattivato). |
 | `lib/app/app.dart` | `MaterialApp.router`, temi, locale `it_IT`, stile della status bar. |
 | `lib/app/router.dart` | `routerProvider` (go_router), costanti `Routes`, redirect onboarding. |
-| `lib/app/shell_scaffold.dart` | Barra flottante a pillola, pulsante "+" contestuale, back Android verso Home. |
+| `lib/app/shell_scaffold.dart` | Barra flottante a pillola (centrata sui tablet) o rail laterale (tablet in orizzontale), pulsante "+" contestuale, back Android verso Home. |
 | `lib/app/theme.dart` | `AppPalette`, `AppColors` (ThemeExtension), `AppTheme`, `systemOverlayFor`, `context.motion`. |
 | `lib/core/config/app_config.dart` | Unica fonte di URL, endpoint, token, etichette, chiavi preferenze. |
 | `lib/core/network/` | `ApiClient`, `fetchAllPages`, `yearQuery`. |
@@ -35,7 +35,7 @@ Schermate (ConsumerWidget)  ──watch──▶  Provider Riverpod  ──▶  
 | `lib/features/stats/` | `StatsCalculator`, modelli statistici, provider derivati, `StatsScreen`, grafici. |
 | `lib/features/home/` | `HomeScreen`. |
 | `lib/features/settings/` | `yearProvider`, `themeModeProvider`, `listLayoutProvider`, `SettingsScreen`. |
-| `lib/shared/widgets/` | Componenti del design system: `AppPage`, `Tile`, `MetricTile`, `HeroTile`, `PartnerSplitTile`, `InsetGroup`, `SectionTitle`, `Pill`, `YearSelector`, `EmptyState`, `AsyncBody`, `SliverMonthGroups`, componenti dei form (`DateQuickPicker`, `ToggleTile`, `SelectableGrid`, `ChoiceChipsWrap`, `BigCounter`, `SaveBar`), `showConfirmDialog`, `PartnerAvatar`, `SliverEventCalendar`, `HeartMark`, `showDayEventsSheet`, `ListLayoutToggle`. Elenco e regole in `design-system.md`. |
+| `lib/shared/widgets/` | Componenti del design system: `AppPage`, `Tile`, `MetricTile`, `HeroTile`, `PartnerSplitTile`, `InsetGroup`, `SectionTitle`, `Pill`, `YearSelector`, `EmptyState`, `AsyncBody`, `SliverMonthGroups`, componenti dei form (`DateQuickPicker`, `ToggleTile`, `SelectableGrid`, `ChoiceChipsWrap`, `BigCounter`, `SaveBar`), `showConfirmDialog`, `PartnerAvatar`, `SliverEventCalendar`, `HeartMark`, `showDayEventsSheet`, `ListLayoutToggle`; layout adattivi in `adaptive.dart` (`AppLayout`, `SliverPageWidth`, `PageListView`, `ResponsiveGrid`, `ResponsiveColumns`). Elenco e regole in `design-system.md`. |
 
 ## Provider
 
@@ -71,3 +71,5 @@ Schermate (ConsumerWidget)  ──watch──▶  Provider Riverpod  ──▶  
 ## Navigazione
 
 `StatefulShellRoute.indexedStack` con cinque rami (Home, Attività, Masturbazioni, Statistiche, Impostazioni); ogni ramo mantiene il proprio stato. I form (`/activities/new`, `/activities/:id`, `/masturbations/new`, `/masturbations/:id`) usano `parentNavigatorKey: root` e `MaterialPage(fullscreenDialog: true)`; le route di modifica accettano la query `?year=AAAA` (anno del record, usata dal calendario che mostra tutti gli anni): si aprono a tutto schermo senza barra, con l'icona X. Il redirect porta a `/onboarding` finché il profilo non è completo.
+
+Sui tablet la `ShellScaffold` mostra la barra centrata o, con finestra larga in orizzontale, una rail a sinistra (`AppLayout.useRail`). Il `navigationShell` resta sempre nello stesso punto dell'albero (`Row` → `Expanded` → `MediaQuery.removePadding`), quindi la rotazione non ricrea i navigator dei rami. Dettagli: `docs/features/tablet-layout.md`.

@@ -59,6 +59,19 @@ adb emu kill                                         # spegne l'emulatore
 
 Se manca un emulatore, crealo da Android Studio → Device Manager (immagine con API 35 o 36).
 
+### Emulatore tablet (Xiaomi Pad 7)
+
+Per provare i layout tablet c'è l'AVD `Pad7_API_35`: 2136 × 3200 px a 320 dpi (= 1068 × 1600 dp, come il Pad 7). È stato creato a mano in `%USERPROFILE%\.android\avd\` (`Pad7_API_35.ini` + `Pad7_API_35.avd\config.ini`, copia della configurazione del telefono con `hw.lcd.width = 2136`, `hw.lcd.height = 3200`, `hw.lcd.density = 320`), perché senza `cmdline-tools` non c'è `avdmanager`. In alternativa: Android Studio → Device Manager → "Pixel Tablet".
+
+```bash
+flutter emulators --launch Pad7_API_35
+flutter run -d emulator-5556                         # l'id dipende dagli emulatori già accesi
+adb -s emulator-5556 shell settings put system accelerometer_rotation 0
+adb -s emulator-5556 shell settings put system user_rotation 1   # orizzontale (0 = verticale)
+```
+
+Ogni modifica visiva va provata sul tablet in verticale **e** orizzontale, oltre che sul telefono (regole in `docs/knowledge/design-system.md` § "Schermi grandi").
+
 ## Configurazione
 
 Tutto ciò che è fisso (URL del backend, token, endpoint, parametri di query, etichette, chiavi delle preferenze) è in **`lib/core/config/app_config.dart`**. Per puntare a un altro backend si modifica quel file; non ci sono variabili d'ambiente né `--dart-define`.

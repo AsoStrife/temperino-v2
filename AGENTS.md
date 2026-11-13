@@ -1,6 +1,6 @@
 # AGENTS.md – Regole per chi lavora su Temperino (agenti e persone)
 
-Temperino è un'app Flutter (solo Android) che registra attività sessuali e masturbazioni di due partner su un backend Strapi v4 esistente. Questa app sostituisce la vecchia app Vue/Framework7/Capacitor (`../temperino-fe`). La specifica di partenza è `migration-flutter.md`.
+Temperino è un'app Flutter (solo Android, telefono e tablet) che registra attività sessuali e masturbazioni di due partner su un backend Strapi v4 esistente. Questa app sostituisce la vecchia app Vue/Framework7/Capacitor (`../temperino-fe`). La specifica di partenza è `migration-flutter.md`.
 
 Leggi questo file per intero prima di modificare il progetto.
 
@@ -44,7 +44,7 @@ Ogni piano deve essere specifico e diviso in step con checkpoint, così lo stato
 3. **Nome e sesso dei partner non stanno nel codice:** vengono dal profilo locale (`profileProvider`). Nel backend i partner sono solo `A` (partner 1, celeste) e `B` (partner 2, rosa). Colori e avatar sono legati allo slot, mai al nome.
 4. **Niente test automatici** (unit, widget, integration) e niente pacchetti di test. La verifica è `flutter analyze` + prova manuale con l'app in esecuzione.
 5. **Niente migrazioni di dati**, import, export, cache offline.
-6. **Solo Android.** iOS fuori ambito.
+6. **Solo Android**, telefono e tablet (riferimento: Xiaomi Pad 7). iOS fuori ambito.
 7. I bug B1–B14 della vecchia app non vanno reintrodotti: vedi `docs/knowledge/bugfixes.md`.
 8. **Non committare** se l'utente non lo chiede esplicitamente.
 
@@ -125,20 +125,33 @@ Il design system è documentato in **`docs/knowledge/design-system.md`**: leggil
 - Prima di usare un `BuildContext` dopo un `await`, controlla `mounted` / `context.mounted`; cattura `ScaffoldMessenger.of(context)` prima dell'`await`.
 - Ogni modifica visiva va verificata con l'app in esecuzione, in tema chiaro **e** scuro.
 
-### 4.5 Rete
+### 4.5 Telefono e tablet
+
+Studio: `docs/knowledge/tablet-usability.md`; regole complete in `design-system.md` § "Schermi grandi".
+
+- **Il layout del telefono è definitivo.** Sotto 600 dp nessuna schermata deve cambiare. Ogni layout adattivo, impilato, deve dare esattamente l'ordine e i gap del telefono.
+- **Decide lo spazio, non il dispositivo.** Breakpoint e larghezze solo da `AppLayout` (`lib/shared/widgets/adaptive.dart`): niente `isTablet`, niente numeri magici nelle schermate. Il contenuto si adatta con `LayoutBuilder` / `SliverLayoutBuilder`; `MediaQuery.sizeOf` solo per la navigazione.
+- **Componenti adattivi**: `PageSection(maxWidth:)` / `SliverPageWidth` per le pagine a sliver, `PageListView` per i form, `ResponsiveGrid` e `ResponsiveColumns` per le colonne. Liste e impostazioni a `readableWidth` (760), pagine a colonne a `wideWidth` (1200).
+- **Scroll a tutta larghezza**: centrare il contenuto con il padding, mai con un `ConstrainedBox` attorno allo scroll view.
+- **Niente wrapper condizionali** sopra sottoalberi con stato: alla rotazione verrebbero ricreati (navigator, form). Tenere lo stesso albero e cambiare i parametri.
+- `IntrinsicHeight` (`ResponsiveGrid(equalHeight: true)`) solo per tile di testo: grafici e `LayoutBuilder` non supportano le dimensioni intrinseche.
+- Nuove schermate o componenti: prevedere subito il comportamento su tablet e documentarlo in `docs/features/tablet-layout.md`.
+- Verifica: telefono + emulatore tablet `Pad7_API_35` in verticale **e** orizzontale (vedi `README.md`), chiaro e scuro, rotazione con una schermata aperta.
+
+### 4.6 Rete
 
 - Solo `ApiClient` (dio) con `Authorization: Bearer` aggiunto dall'interceptor.
 - Le liste usano `fetchAllPages` + `yearQuery(year)`; i repository riordinano sempre in locale su una copia (il backend ignora `sort`: vedi `docs/knowledge/backend-api.md`).
 - I body di POST/PUT sono sempre `{ "data": { ... } }` con booleani veri.
 - Le richieste in parallelo usano `mapWithConcurrency` con `AppConfig.maxParallelRequests`.
 
-### 4.6 Performance
+### 4.7 Performance
 
 - Liste lunghe con `ListView.builder`.
 - Calcoli statistici nei provider derivati (memoizzati da Riverpod), non nel `build` dei widget.
 - `const` ovunque possibile; `CustomPainter.shouldRepaint` preciso.
 
-### 4.7 Android
+### 4.8 Android
 
 - `applicationId`/`namespace` `com.strifelab.temperino` (aggiorna l'app esistente sul Play Store: non cambiarlo).
 - `minSdk 24`, `targetSdk 36`, `compileSdk >= 36`. Solo permesso `INTERNET`, niente cleartext.

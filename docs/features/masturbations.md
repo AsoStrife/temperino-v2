@@ -39,3 +39,7 @@ Salva (barra fissa in basso), Cancella (cestino nell'app bar), conferma di uscit
 1. Form nuovo dal "+" nel tab Masturbazioni. ✅ emulatore 12/11/2026.
 2. Nuova masturbazione per il partner 2 con giocattoli → in lista con avatar rosa e pillola "Giocattoli". ⬜ (scrittura non provata)
 3. Errore di rete in salvataggio → SnackBar con messaggio. ⬜
+
+## Tablet
+
+Sui tablet: lista centrata a 760 dp; il form va su due colonne (Chi + Quando │ Dettagli + Orgasmi) con "Salva" centrato. Dettagli in `tablet-layout.md`.

@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../app/theme.dart';
 import '../../../core/error/app_exception.dart';
 import '../../../core/utils/formatters.dart';
+import '../../../shared/widgets/adaptive.dart';
 import '../../../shared/widgets/app_page.dart';
 import '../../../shared/widgets/async_body.dart';
 import '../../../shared/widgets/partner_avatar.dart';
@@ -27,6 +28,12 @@ import 'widgets/year_comparison_chart.dart';
 
 enum _StatsTab { activities, masturbations }
 
+/// Minimum width of a metric tile in the four-in-a-row layout.
+const _metricMinWidth = 150.0;
+
+/// Minimum width of a chart or big tile before two sit side by side.
+const _chartMinWidth = 360.0;
+
 /// Statistics with two sections ("Attività" / "Masturbazioni") switched by a
 /// pill segmented control pinned under the title.
 class StatsScreen extends ConsumerStatefulWidget {
@@ -49,24 +56,33 @@ class _StatsScreenState extends ConsumerState<StatsScreen> {
         preferredSize: const Size.fromHeight(64),
         child: Padding(
           padding: const EdgeInsets.fromLTRB(16, 4, 16, 12),
-          child: SizedBox(
-            width: double.infinity,
-            child: SegmentedButton<_StatsTab>(
-              showSelectedIcon: false,
-              segments: const [
-                ButtonSegment(
-                  value: _StatsTab.activities,
-                  icon: Icon(Icons.favorite_rounded),
-                  label: Text('Attività'),
+          // Full width on phones, centered and capped on tablets.
+          child: Align(
+            alignment: Alignment.topCenter,
+            child: ConstrainedBox(
+              constraints: const BoxConstraints(
+                maxWidth: AppLayout.actionMaxWidth,
+              ),
+              child: SizedBox(
+                width: double.infinity,
+                child: SegmentedButton<_StatsTab>(
+                  showSelectedIcon: false,
+                  segments: const [
+                    ButtonSegment(
+                      value: _StatsTab.activities,
+                      icon: Icon(Icons.favorite_rounded),
+                      label: Text('Attività'),
+                    ),
+                    ButtonSegment(
+                      value: _StatsTab.masturbations,
+                      icon: Icon(Icons.back_hand_rounded),
+                      label: Text('Masturbazioni'),
+                    ),
+                  ],
+                  selected: {_tab},
+                  onSelectionChanged: (s) => setState(() => _tab = s.first),
                 ),
-                ButtonSegment(
-                  value: _StatsTab.masturbations,
-                  icon: Icon(Icons.back_hand_rounded),
-                  label: Text('Masturbazioni'),
-                ),
-              ],
-              selected: {_tab},
-              onSelectionChanged: (s) => setState(() => _tab = s.first),
+              ),
             ),
           ),
         ),
@@ -88,124 +104,165 @@ class _StatsScreenState extends ConsumerState<StatsScreen> {
       data: (s) {
         final practices = s.practiceCounts.entries.toList()
           ..sort((x, y) => y.value.compareTo(x.value));
+        final scopate = MetricTile(
+          icon: Icons.favorite_rounded,
+          color: c.accentInk,
+          label: 'Scopate',
+          value: '${s.sexCount}',
+          caption: 'su ${s.activityCount} attività',
+        );
+        final orgasms = MetricTile(
+          icon: Icons.all_inclusive_rounded,
+          color: c.positive,
+          label: 'Orgasmi totali',
+          value: '${s.totalOrgasms.total}',
+          caption: 'attività + masturbazioni',
+        );
+        final ratio = MetricTile(
+          icon: Icons.balance_rounded,
+          color: c.accentInk,
+          label: 'Rapporto D/A',
+          value: Formatters.ratio(s.ratio),
+          caption: 'durante il sesso',
+        );
+        final ratioB = MetricTile(
+          icon: Icons.balance_rounded,
+          color: c.partnerBInk,
+          label: 'Rapporto D/A',
+          value: Formatters.ratio(s.ratioWhenBComes),
+          caption: 'quando $nameB viene',
+        );
+        final splitActivities = PartnerSplitTile(
+          title: 'Orgasmi nelle attività',
+          profile: profile,
+          a: s.orgasmsInActivities.a,
+          b: s.orgasmsInActivities.b,
+        );
+        final splitSex = PartnerSplitTile(
+          title: 'Orgasmi durante il sesso',
+          profile: profile,
+          a: s.orgasmsDuringSex.a,
+          b: s.orgasmsDuringSex.b,
+        );
+
         return [
-          PageSection(
-            children: [
-              ResponsivePair(
-                first: MetricTile(
-                  icon: Icons.favorite_rounded,
-                  color: c.accentInk,
-                  label: 'Scopate',
-                  value: '${s.sexCount}',
-                  caption: 'su ${s.activityCount} attività',
-                ),
-                second: MetricTile(
-                  icon: Icons.all_inclusive_rounded,
-                  color: c.positive,
-                  label: 'Orgasmi totali',
-                  value: '${s.totalOrgasms.total}',
-                  caption: 'attività + masturbazioni',
-                ),
-              ),
-              const SizedBox(height: 12),
-              PartnerSplitTile(
-                title: 'Orgasmi nelle attività',
-                profile: profile,
-                a: s.orgasmsInActivities.a,
-                b: s.orgasmsInActivities.b,
-              ),
-              const SizedBox(height: 12),
-              PartnerSplitTile(
-                title: 'Orgasmi durante il sesso',
-                profile: profile,
-                a: s.orgasmsDuringSex.a,
-                b: s.orgasmsDuringSex.b,
-              ),
-              const SizedBox(height: 12),
-              ResponsivePair(
-                first: MetricTile(
-                  icon: Icons.balance_rounded,
-                  color: c.accentInk,
-                  label: 'Rapporto D/A',
-                  value: Formatters.ratio(s.ratio),
-                  caption: 'durante il sesso',
-                ),
-                second: MetricTile(
-                  icon: Icons.balance_rounded,
-                  color: c.partnerBInk,
-                  label: 'Rapporto D/A',
-                  value: Formatters.ratio(s.ratioWhenBComes),
-                  caption: 'quando $nameB viene',
-                ),
-              ),
-              const SectionTitle('Andamento'),
-              _Section<List<PartnerPair>>(
-                value: ref.watch(monthlyProvider(year)),
-                builder: (m) => MonthlyOrgasmsChart(
-                  year: year,
-                  months: m,
-                  profile: profile,
-                ),
-              ),
-              const SizedBox(height: 12),
-              _Section<List<double?>>(
-                value: ref.watch(monthlyRatioProvider(year)),
-                builder: (r) =>
-                    RatioChart(ratios: r, title: 'Rapporto D/A per mese'),
-              ),
-              const SectionTitle('Dettagli'),
-              _Section<List<MapEntry<CumshotZone, int>>>(
-                value: ref.watch(cumshotProvider(year)),
-                builder: (zones) {
-                  final top = zones.isNotEmpty && zones.first.value > 0
-                      ? zones.first
-                      : null;
-                  return ChartCard(
-                    title: 'Sborrate per zona',
-                    subtitle: 'Tutte le 12 zone, dalla più frequente',
-                    semanticsLabel: top == null
-                        ? 'Sborrate per zona: nessun dato.'
-                        : 'Sborrate per zona. La più frequente è '
-                              '${top.key.label} con ${top.value}.',
-                    child: HorizontalBars(
-                      color: c.neutral,
-                      entries: [
-                        for (final z in zones)
-                          BarEntry(
-                            z.key.label,
-                            z.value,
-                            color: identical(z, top) ? c.accent : null,
-                          ),
-                      ],
+          SliverPageWidth(
+            maxWidth: AppLayout.wideWidth,
+            builder: (context, width) {
+              // Tablets: the four numbers in one row, comparisons and charts
+              // side by side. Phones keep the original order.
+              final wide =
+                  AppLayout.columns(
+                    width,
+                    minWidth: _metricMinWidth,
+                    max: 4,
+                    scale: textScaleOf(context),
+                  ) ==
+                  4;
+              return SliverList.list(
+                children: [
+                  if (wide) ...[
+                    ResponsiveGrid(
+                      minItemWidth: _metricMinWidth,
+                      maxColumns: 4,
+                      equalHeight: true,
+                      children: [scopate, orgasms, ratio, ratioB],
                     ),
-                  );
-                },
-              ),
-              const SizedBox(height: 12),
-              ChartCard(
-                title: 'Pratiche',
-                subtitle: 'Numero di attività per pratica',
-                semanticsLabel:
-                    'Pratiche: ${practices.map((e) => '${e.key.label} ${e.value}').join(', ')}.',
-                child: HorizontalBars(
-                  color: c.partnerA,
-                  entries: [
-                    for (final e in practices) BarEntry(e.key.label, e.value),
+                    const SizedBox(height: 12),
+                    ResponsiveGrid(
+                      minItemWidth: _chartMinWidth,
+                      children: [splitActivities, splitSex],
+                    ),
+                  ] else ...[
+                    ResponsivePair(first: scopate, second: orgasms),
+                    const SizedBox(height: 12),
+                    splitActivities,
+                    const SizedBox(height: 12),
+                    splitSex,
+                    const SizedBox(height: 12),
+                    ResponsivePair(first: ratio, second: ratioB),
                   ],
-                ),
-              ),
-              const SectionTitle('Calendario'),
-              _Section<CalendarData>(
-                value: ref.watch(calendarProvider(year)),
-                builder: (cal) => CalendarHeatmap(data: cal),
-              ),
-              const SectionTitle('Negli anni'),
-              _Section<List<YearStats>>(
-                value: ref.watch(yearlyProvider),
-                height: 260,
-                builder: (y) => YearComparisonChart(years: y),
-              ),
-            ],
+                  const SectionTitle('Andamento'),
+                  ResponsiveGrid(
+                    minItemWidth: _chartMinWidth,
+                    children: [
+                      _Section<List<PartnerPair>>(
+                        value: ref.watch(monthlyProvider(year)),
+                        builder: (m) => MonthlyOrgasmsChart(
+                          year: year,
+                          months: m,
+                          profile: profile,
+                        ),
+                      ),
+                      _Section<List<double?>>(
+                        value: ref.watch(monthlyRatioProvider(year)),
+                        builder: (r) => RatioChart(
+                          ratios: r,
+                          title: 'Rapporto D/A per mese',
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SectionTitle('Dettagli'),
+                  ResponsiveGrid(
+                    minItemWidth: _chartMinWidth,
+                    children: [
+                      _Section<List<MapEntry<CumshotZone, int>>>(
+                        value: ref.watch(cumshotProvider(year)),
+                        builder: (zones) {
+                          final top = zones.isNotEmpty && zones.first.value > 0
+                              ? zones.first
+                              : null;
+                          return ChartCard(
+                            title: 'Sborrate per zona',
+                            subtitle: 'Tutte le 12 zone, dalla più frequente',
+                            semanticsLabel: top == null
+                                ? 'Sborrate per zona: nessun dato.'
+                                : 'Sborrate per zona. La più frequente è '
+                                      '${top.key.label} con ${top.value}.',
+                            child: HorizontalBars(
+                              color: c.neutral,
+                              entries: [
+                                for (final z in zones)
+                                  BarEntry(
+                                    z.key.label,
+                                    z.value,
+                                    color: identical(z, top) ? c.accent : null,
+                                  ),
+                              ],
+                            ),
+                          );
+                        },
+                      ),
+                      ChartCard(
+                        title: 'Pratiche',
+                        subtitle: 'Numero di attività per pratica',
+                        semanticsLabel:
+                            'Pratiche: ${practices.map((e) => '${e.key.label} ${e.value}').join(', ')}.',
+                        child: HorizontalBars(
+                          color: c.partnerA,
+                          entries: [
+                            for (final e in practices)
+                              BarEntry(e.key.label, e.value),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SectionTitle('Calendario'),
+                  _Section<CalendarData>(
+                    value: ref.watch(calendarProvider(year)),
+                    builder: (cal) => CalendarHeatmap(data: cal),
+                  ),
+                  const SectionTitle('Negli anni'),
+                  _Section<List<YearStats>>(
+                    value: ref.watch(yearlyProvider),
+                    height: 260,
+                    builder: (y) => YearComparisonChart(years: y),
+                  ),
+                ],
+              );
+            },
           ),
         ];
       },
@@ -219,24 +276,34 @@ class _StatsScreenState extends ConsumerState<StatsScreen> {
       onRetry: () => HomeScreen.refreshYear(ref, year),
       data: (s) => [
         PageSection(
+          maxWidth: AppLayout.wideWidth,
           children: [
-            for (final p in Partner.values) ...[
-              _PartnerMasturbationTile(
-                partner: p,
-                info: profile.of(p),
-                stats: s.of(p),
-              ),
-              const SizedBox(height: 12),
-            ],
-            PartnerSplitTile(
-              title: 'Chi si tocca di più',
-              caption: 'Numero di masturbazioni',
-              profile: profile,
-              a: s.a.count,
-              b: s.b.count,
+            // Side by side on tablets; stacked it is the phone order.
+            ResponsiveGrid(
+              minItemWidth: _chartMinWidth,
+              children: [
+                for (final p in Partner.values)
+                  _PartnerMasturbationTile(
+                    partner: p,
+                    info: profile.of(p),
+                    stats: s.of(p),
+                  ),
+              ],
             ),
             const SizedBox(height: 12),
-            ToysDonut(summary: s, profile: profile),
+            ResponsiveGrid(
+              minItemWidth: _chartMinWidth,
+              children: [
+                PartnerSplitTile(
+                  title: 'Chi si tocca di più',
+                  caption: 'Numero di masturbazioni',
+                  profile: profile,
+                  a: s.a.count,
+                  b: s.b.count,
+                ),
+                ToysDonut(summary: s, profile: profile),
+              ],
+            ),
           ],
         ),
       ],

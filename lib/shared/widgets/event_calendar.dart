@@ -8,6 +8,7 @@ import '../../app/theme.dart';
 import '../../core/utils/date_only.dart';
 import '../../core/utils/formatters.dart';
 import '../../features/calendar/domain/day_events.dart';
+import 'adaptive.dart';
 import 'app_page.dart';
 import 'tiles.dart';
 
@@ -32,9 +33,13 @@ class CalendarDay {
 /// Vertical calendar for a `CustomScrollView` (period-tracker style): one
 /// month per item, newest at the top, days with events marked and tappable.
 ///
-/// Months have an exact height (`SliverVariedExtentList`), so the calendar
-/// can jump to any month with [SliverEventCalendarState.showMonth] even if it
-/// was never built.
+/// On wide pages (tablets) the months are laid out in a grid of 2 or 3
+/// columns ([columnsFor]); each month then has its own weekday row and six
+/// week rows, so that the months of a row have the same height.
+///
+/// Items (months, or rows of months) have an exact height
+/// (`SliverVariedExtentList`), so the calendar can jump to any month with
+/// [SliverEventCalendarState.showMonth] even if it was never built.
 class SliverEventCalendar extends StatefulWidget {
   const SliverEventCalendar({
     super.key,
@@ -45,9 +50,33 @@ class SliverEventCalendar extends StatefulWidget {
     this.initialMonth,
   });
 
-  /// Horizontal page margin of the calendar. Smaller than the usual 16 so a
-  /// day cell is at least 48 dp wide on a 360 dp phone.
+  /// Horizontal page margin of the calendar on phones. Smaller than the
+  /// usual 16 so a day cell is at least 48 dp wide on a 360 dp phone.
   static const gutter = 12.0;
+
+  /// Horizontal gap between the months of a grid row.
+  static const monthGap = 16.0;
+
+  /// Minimum width of a month in the grid.
+  static const monthMinWidth = 340.0;
+
+  /// Horizontal inset of the calendar on a page [width].
+  static double insetFor(double width) => width < AppLayout.mediumWidth
+      ? gutter
+      : AppLayout.sideInset(width, AppLayout.wideWidth);
+
+  /// Months per row on a page [width]: 1 on phones, 2 on a tablet in
+  /// portrait, 3 in landscape. Fewer with big text.
+  static int columnsFor(double width, {double textScale = 1}) =>
+      width < AppLayout.mediumWidth
+      ? 1
+      : AppLayout.columns(
+          width - 2 * insetFor(width),
+          minWidth: monthMinWidth,
+          max: 3,
+          scale: textScale,
+          gap: monthGap,
+        );
 
   /// Months to show, newest first.
   final List<CalendarMonth> months;
@@ -67,6 +96,7 @@ class SliverEventCalendar extends StatefulWidget {
 
 class SliverEventCalendarState extends State<SliverEventCalendar> {
   _Metrics? _metrics;
+  var _columns = 1;
 
   @override
   void initState() {
@@ -92,11 +122,13 @@ class SliverEventCalendarState extends State<SliverEventCalendar> {
         position == null) {
       return;
     }
+    // Item of the month: the month itself, or its row in the grid.
+    final item = index ~/ _columns;
     var offset = 0.0;
-    if (index > 0) {
+    if (item > 0) {
       offset = sliver.constraints.precedingScrollExtent - _pinnedExtent();
-      for (var i = 0; i < index; i++) {
-        offset += metrics.monthExtent(widget.months[i]);
+      for (var i = 0; i < item; i++) {
+        offset += metrics.itemExtent(widget.months, i, _columns);
       }
     }
     offset = offset.clamp(position.minScrollExtent, position.maxScrollExtent);
@@ -112,42 +144,69 @@ class SliverEventCalendarState extends State<SliverEventCalendar> {
     }
   }
 
-  /// Height of the pinned `AppPage` bar with the weekday row: status bar +
-  /// toolbar + [CalendarWeekdayHeader].
+  /// Height of the pinned `AppPage` bar: status bar + toolbar +
+  /// [CalendarWeekdayHeader] (only with one column).
   double _pinnedExtent() =>
       MediaQuery.paddingOf(context).top +
       AppPage.barHeight(
         hasActions: true,
-        bottomHeight: CalendarWeekdayHeader.height,
+        bottomHeight: _columns == 1 ? CalendarWeekdayHeader.height : 0,
       );
 
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final scaler = MediaQuery.textScalerOf(context);
-    return SliverPadding(
-      padding: const EdgeInsets.symmetric(
-        horizontal: SliverEventCalendar.gutter,
-      ),
-      sliver: SliverLayoutBuilder(
-        builder: (context, constraints) {
-          final metrics = _Metrics(theme, scaler, constraints.crossAxisExtent);
-          _metrics = metrics;
-          final months = widget.months;
-          return SliverVariedExtentList.builder(
-            itemCount: months.length,
+    return SliverLayoutBuilder(
+      builder: (context, constraints) {
+        final width = constraints.crossAxisExtent;
+        final columns = SliverEventCalendar.columnsFor(
+          width,
+          textScale: scaler.scale(1),
+        );
+        final inset = SliverEventCalendar.insetFor(width);
+        final monthWidth =
+            (width - 2 * inset - (columns - 1) * SliverEventCalendar.monthGap) /
+            columns;
+        final metrics = _Metrics(theme, scaler, monthWidth, grid: columns > 1);
+        _metrics = metrics;
+        _columns = columns;
+        final months = widget.months;
+        final items = (months.length / columns).ceil();
+
+        Widget month(int i) => _MonthView(
+          month: months[i],
+          metrics: metrics,
+          today: widget.today,
+          dayOf: widget.dayOf,
+          onDayTap: widget.onDayTap,
+        );
+
+        return SliverPadding(
+          padding: EdgeInsets.symmetric(horizontal: inset),
+          sliver: SliverVariedExtentList.builder(
+            itemCount: items,
             itemExtentBuilder: (i, _) =>
-                i < months.length ? metrics.monthExtent(months[i]) : null,
-            itemBuilder: (context, i) => _MonthView(
-              month: months[i],
-              metrics: metrics,
-              today: widget.today,
-              dayOf: widget.dayOf,
-              onDayTap: widget.onDayTap,
-            ),
-          );
-        },
-      ),
+                i < items ? metrics.itemExtent(months, i, columns) : null,
+            itemBuilder: (context, i) => columns == 1
+                ? month(i)
+                : Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      for (var c = 0; c < columns; c++) ...[
+                        if (c > 0)
+                          const SizedBox(width: SliverEventCalendar.monthGap),
+                        Expanded(
+                          child: i * columns + c < months.length
+                              ? month(i * columns + c)
+                              : const SizedBox.shrink(),
+                        ),
+                      ],
+                    ],
+                  ),
+          ),
+        );
+      },
     );
   }
 }
@@ -165,31 +224,15 @@ class CalendarWeekdayHeader extends StatelessWidget
 
   @override
   Widget build(BuildContext context) {
-    final style = Theme.of(context).textTheme.labelMedium
-        ?.copyWith(color: context.appColors.muted);
     return ExcludeSemantics(
       child: SizedBox(
         height: height,
-        child: Padding(
-          padding: const EdgeInsets.symmetric(
-            horizontal: SliverEventCalendar.gutter,
-          ),
-          child: Row(
-            children: [
-              for (var d = DateTime.monday; d <= DateTime.sunday; d++)
-                Expanded(
-                  child: Center(
-                    child: Text(
-                      Formatters.weekdayNarrow(d),
-                      style: style,
-                      maxLines: 1,
-                      // The row has a fixed height: cap the scale.
-                      textScaler: MediaQuery.textScalerOf(context)
-                          .clamp(maxScaleFactor: 1.6),
-                    ),
-                  ),
-                ),
-            ],
+        child: LayoutBuilder(
+          builder: (context, box) => Padding(
+            padding: EdgeInsets.symmetric(
+              horizontal: SliverEventCalendar.insetFor(box.maxWidth),
+            ),
+            child: const _WeekdayInitials(),
           ),
         ),
       ),
@@ -197,10 +240,43 @@ class CalendarWeekdayHeader extends StatelessWidget
   }
 }
 
+/// L M M G V S D, one per column of the month grid.
+class _WeekdayInitials extends StatelessWidget {
+  const _WeekdayInitials();
+
+  @override
+  Widget build(BuildContext context) {
+    final style = Theme.of(context).textTheme.labelMedium
+        ?.copyWith(color: context.appColors.muted);
+    return Row(
+      children: [
+        for (var d = DateTime.monday; d <= DateTime.sunday; d++)
+          Expanded(
+            child: Center(
+              child: Text(
+                Formatters.weekdayNarrow(d),
+                style: style,
+                maxLines: 1,
+                // The row has a fixed height: cap the scale.
+                textScaler: MediaQuery.textScalerOf(context)
+                    .clamp(maxScaleFactor: 1.6),
+              ),
+            ),
+          ),
+      ],
+    );
+  }
+}
+
 /// Sizes that depend on width and text scale. Every height is computed here
 /// so that the item extents and the built months always match.
 class _Metrics {
-  factory _Metrics(ThemeData theme, TextScaler scaler, double width) {
+  factory _Metrics(
+    ThemeData theme,
+    TextScaler scaler,
+    double width, {
+    bool grid = false,
+  }) {
     final titleSize = theme.textTheme.titleMedium?.fontSize ?? 16;
     final numberSize = theme.textTheme.bodyMedium?.fontSize ?? 14;
     final titleLine = scaler.scale(titleSize) * titleHeight;
@@ -213,6 +289,8 @@ class _Metrics {
       headerExtent: headerTop + titleLine + headerBottom,
       rowExtent: row,
       numberBox: numberBox,
+      weekdayExtent: grid ? weekdayRow : 0,
+      fixedRows: grid ? 6 : null,
     );
   }
 
@@ -220,6 +298,8 @@ class _Metrics {
     required this.headerExtent,
     required this.rowExtent,
     required this.numberBox,
+    required this.weekdayExtent,
+    required this.fixedRows,
   });
 
   static const titleHeight = 1.5;
@@ -230,16 +310,32 @@ class _Metrics {
   static const markerSize = 16.0;
   static const markerGap = 2.0;
 
+  /// Weekday row inside each month of the grid.
+  static const weekdayRow = 32.0;
+
   final double headerExtent;
   final double rowExtent;
 
   /// Side of the (round) box of the day number.
   final double numberBox;
 
+  /// Height of the weekday row inside the month (grid only, else 0).
+  final double weekdayExtent;
+
+  /// Week rows of every month in the grid (6, so months of a row align);
+  /// `null` for the real number of weeks.
+  final int? fixedRows;
+
+  int rowsOf(CalendarMonth m) =>
+      fixedRows ?? CalendarDays.weekRows(m.year, m.month);
+
   double monthExtent(CalendarMonth m) =>
-      headerExtent +
-      2 * gridPadding +
-      CalendarDays.weekRows(m.year, m.month) * rowExtent;
+      headerExtent + 2 * gridPadding + weekdayExtent + rowsOf(m) * rowExtent;
+
+  /// Height of item [i]: a month, or a row of [columns] months (all with
+  /// the same height in the grid).
+  double itemExtent(List<CalendarMonth> months, int i, int columns) =>
+      monthExtent(months[i * columns]);
 }
 
 class _MonthView extends StatelessWidget {
@@ -264,7 +360,7 @@ class _MonthView extends StatelessWidget {
     final (:year, month: m) = month;
     final blanks = CalendarDays.leadingBlanks(year, m);
     final days = CalendarDays.daysInMonth(year, m);
-    final rows = CalendarDays.weekRows(year, m);
+    final rows = metrics.rowsOf(month);
     final infos = <int, CalendarDay>{
       for (var d = 1; d <= days; d++) d: ?dayOf(DateOnly(year, m, d)),
     };
@@ -313,6 +409,11 @@ class _MonthView extends StatelessWidget {
           padding: const EdgeInsets.symmetric(vertical: _Metrics.gridPadding),
           child: Column(
             children: [
+              if (metrics.weekdayExtent > 0)
+                SizedBox(
+                  height: metrics.weekdayExtent,
+                  child: const ExcludeSemantics(child: _WeekdayInitials()),
+                ),
               for (var r = 0; r < rows; r++)
                 SizedBox(
                   height: metrics.rowExtent,
