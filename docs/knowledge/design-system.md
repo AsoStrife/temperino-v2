@@ -91,7 +91,7 @@ Font di sistema (Roboto). Titoli e display con peso 700–800 e tracking negativ
 
 ## Navigazione
 
-- Barra flottante a pillola (`lib/app/shell_scaffold.dart`) con 5 icone (etichetta in tooltip e semantica) e sfocatura dello sfondo; a fianco il pulsante "+" circolare con gradiente. Sui tablet centrata (max 560 dp) o, in orizzontale, rail verticale a sinistra con il "+" sotto (vedi "Schermi grandi").
+- Barra flottante a pillola (`lib/app/shell_scaffold.dart`) con 5 icone (etichetta in tooltip e semantica) e sfocatura dello sfondo; a fianco il pulsante "+" circolare con gradiente. Sui tablet centrata (max 560 dp) o, in orizzontale, rail verticale a destra con il "+" sotto (vedi "Schermi grandi").
 - "+" contestuale: tab Attività → nuova attività; tab Masturbazioni → nuova masturbazione; altrove → foglio "Cosa aggiungi?".
 - Il contenuto scorre sotto la barra (`extendBody`): le pagine aggiungono `MediaQuery.paddingOf(context).bottom` in fondo (già fatto da `AppPage`).
 - I form si aprono come "fullscreen dialog" (icona X), con `SaveBar` in basso e cancellazione nell'app bar.
@@ -114,7 +114,7 @@ Studio e motivazioni: `tablet-usability.md`. Feature: `docs/features/tablet-layo
 
 - **Spazio, non dispositivo.** Il layout del contenuto si decide con `LayoutBuilder` / `SliverLayoutBuilder` sulla larghezza disponibile; `MediaQuery.sizeOf` solo per la navigazione (`AppLayout.useRail`). Mai `isTablet`.
 - **Colonne.** `AppLayout.columns` moltiplica la larghezza minima per il fattore di scala del testo: con caratteri grandi si torna a una colonna.
-- **Navigazione.** Barra flottante centrata (max 560) da 600 dp; rail verticale a sinistra se la finestra è ≥ 840, più larga che alta e alta ≥ 480. La shell mantiene lo stesso albero nei due modi (la rail si inserisce prima del contenuto), così la rotazione non perde lo stato.
+- **Navigazione.** Barra flottante centrata (max 560) da 600 dp; rail verticale a destra se la finestra è ≥ 840, più larga che alta e alta ≥ 480. In verticale la barra resta in basso. La shell mantiene lo stesso albero nei due modi (la rail si inserisce dopo il contenuto), così la rotazione non perde lo stato. La rail gestisce l'inset di sistema destro; il contenuto conserva quello sinistro.
 - **Contenuto centrato, scroll a tutta larghezza.** Non avvolgere `CustomScrollView`/`ListView` in un `ConstrainedBox`: usare il padding (`SliverPageWidth`, `PageListView`), così si trascina e si fa pull-to-refresh anche sui margini.
 - **Controlli singoli larghi** (bottoni principali, segmented): pieni sul telefono, centrati e limitati a `actionMaxWidth` altrove.
 - **Fogli dal basso**: Material 3 li limita già a 640 dp; non serve altro.

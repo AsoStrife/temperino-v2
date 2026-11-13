@@ -1,6 +1,6 @@
 # Feature: Layout adattivo per tablet
 
-Piano: `docs/plans/2026-11-13-tablet-support.md`. Studio di usabilità e motivazioni: `docs/knowledge/tablet-usability.md`. Regole e componenti: `docs/knowledge/design-system.md` § "Schermi grandi".
+Piani: `docs/plans/2026-11-13-tablet-support.md`, `docs/plans/2026-11-13-tablet-rail-right.md`. Studio di usabilità e motivazioni: `docs/knowledge/tablet-usability.md`. Regole e componenti: `docs/knowledge/design-system.md` § "Schermi grandi".
 
 ## Comportamento
 
@@ -16,7 +16,7 @@ L'app si adatta alla **larghezza disponibile in dp** (non al tipo di dispositivo
 
 - **Compatta:** barra flottante a tutta larghezza (invariata).
 - **Media/espansa:** barra flottante in basso, centrata, larga al massimo 560 dp con il "+".
-- **Tablet in orizzontale** (finestra ≥ 840 dp, più larga che alta, alta almeno 480 dp): **rail verticale flottante a sinistra**, centrata in altezza, con il "+" sotto. Il contenuto sta a destra della rail. Stesse icone, tooltip, semantica, "+" contestuale e back Android.
+- **Tablet in orizzontale** (finestra ≥ 840 dp, più larga che alta, alta almeno 480 dp): **rail verticale flottante a destra**, centrata in altezza, con il "+" sotto. Il contenuto sta a sinistra della rail. La rail gestisce l'inset di sistema destro; il contenuto conserva quello sinistro. Stesse icone, tooltip, semantica, "+" contestuale e back Android. In verticale la barra resta in basso.
 - Ruotando il dispositivo il passaggio barra ↔ rail non perde lo stato dei tab (scroll, vista lista/calendario).
 
 ### Pagine
@@ -70,3 +70,11 @@ Emulatore `Pad7_API_35` (2136 × 3200, 320 dpi = 1068 × 1600 dp, vedi `README.m
 9. Impostazioni in orizzontale, scuro. ✅
 10. Telefono: Home, Statistiche, lista e calendario identici a prima; telefono in orizzontale con barra centrata e Home a due colonne. ✅
 11. Dispositivo reale Pad 7: ⬜ da fare.
+
+### Verifica spostamento rail a destra (13/11/2026)
+
+- `dart format .`: 69 file, nessuna variazione; `flutter analyze`: zero issue.
+- App debug in esecuzione su `Pad7_API_35`: Home in orizzontale, rail a destra e "+" sotto; Statistiche in tema scuro con la stessa posizione. ✅
+- Rotazione da Statistiche in orizzontale a verticale: tab conservato e barra in basso; verificati entrambi i temi. ✅
+- Home su `Medium_Phone_API_35` in verticale, tema chiaro e scuro: barra in basso e layout invariati. ✅
+- Breakpoint e condizioni di `AppLayout.useRail` invariati. Nessuna modifica ai form o ai dati del backend; dispositivo reale non verificato.

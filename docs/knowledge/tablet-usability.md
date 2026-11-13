@@ -49,7 +49,7 @@ Analisi delle schermate a 1068 dp e 1600 dp di larghezza.
 
 - **Compatta:** invariata.
 - **Media e espansa in verticale:** la barra flottante resta in basso (familiare, raggiungibile col pollice della mano che tocca) ma è **centrata e larga al massimo 560 dp** (barra + "+"). Le icone tornano vicine come sul telefono. *(P1)*
-- **Espansa in orizzontale** (larghezza ≥ 840 e maggiore dell'altezza): **rail verticale flottante a sinistra**, stessa pillola sfocata e stesse icone, con il "+" sotto, centrati in altezza. Motivi: libera ~90 dp di altezza, che in orizzontale è la dimensione scarsa; resta sotto il pollice sinistro quando il tablet si tiene con due mani; è il pattern Material 3 per finestre espanse. Il contenuto si sposta a destra della rail (non scorre sotto). *(P1)*
+- **Espansa in orizzontale** (larghezza ≥ 840 e maggiore dell'altezza, altezza ≥ 480 dp): **rail verticale flottante a destra**, stessa pillola sfocata e stesse icone, con il "+" sotto, centrati in altezza. Libera ~90 dp di altezza, che in orizzontale è la dimensione scarsa. Il lato destro sostituisce la scelta iniziale del lato sinistro su richiesta esplicita del proprietario del 13/11/2026 (piano `docs/plans/2026-11-13-tablet-rail-right.md`). Il contenuto sta a sinistra della rail e non scorre sotto. *(P1)*
 - Etichette solo in tooltip e semantica anche nella rail: "Masturbazioni" e "Impostazioni" non stanno in 64 dp e la coerenza col telefono vale più delle etichette.
 - Scartata la rail anche in verticale: in verticale l'altezza non scarseggia e la barra in basso resta più vicina al pollice.
 

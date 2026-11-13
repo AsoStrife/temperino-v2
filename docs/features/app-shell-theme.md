@@ -7,7 +7,7 @@ Token, componenti e regole visive: `docs/knowledge/design-system.md`.
 - `go_router` con `StatefulShellRoute.indexedStack`: cinque rami (Home `/`, Attività `/activities`, Masturbazioni `/masturbations`, Statistiche `/stats`, Impostazioni `/settings`), ognuno conserva il proprio stato.
 - **Barra flottante a pillola** (`ShellScaffold`): cinque icone (outline → piena con cerchio tonale quando selezionata), etichette in tooltip e semantica, sfondo semitrasparente con sfocatura, ombra morbida. Il contenuto scorre sotto (`extendBody`).
 - **Pulsante "+"** circolare con gradiente accanto alla barra: sul tab Attività apre il form attività, sul tab Masturbazioni il form masturbazione, altrove un foglio "Cosa aggiungi?" con le due opzioni.
-- **Tablet**: barra centrata (max 560 dp) da 600 dp; con finestra ≥ 840 dp, orizzontale e alta almeno 480 dp, **rail verticale flottante a sinistra** con il "+" sotto. SnackBar larghe 480 dp e centrate da 600 dp. Dettagli in `tablet-layout.md`.
+- **Tablet**: barra centrata (max 560 dp) da 600 dp; con finestra ≥ 840 dp, orizzontale e alta almeno 480 dp, **rail verticale flottante a destra** con il "+" sotto. In verticale la barra resta in basso. SnackBar larghe 480 dp e centrate da 600 dp. Dettagli in `tablet-layout.md`.
 - Ritoccare il tab attivo riporta alla radice del tab.
 - Form a tutto schermo fuori dalla shell, aperti come fullscreen dialog (icona X): `/activities/new`, `/activities/:id`, `/masturbations/new`, `/masturbations/:id`.
 - Redirect: profilo incompleto → `/onboarding`; profilo completo e `/onboarding` → `/`.
@@ -51,3 +51,4 @@ Token, componenti e regole visive: `docs/knowledge/design-system.md`.
 4. Tema scuro di sistema → app scura, icone status bar chiare. ✅
 5. Testo di sistema ingrandito → nessun overflow; la griglia delle pratiche passa a 2 colonne. ✅ (font scale 2.0 sull'emulatore)
 6. Tablet: barra centrata in verticale, rail in orizzontale, rotazione senza perdita di stato. ✅ emulatore `Pad7_API_35` 13/11/2026.
+7. Rail spostata a destra solo in orizzontale: Home e Statistiche sul tablet, barra in basso in verticale con tab conservato; temi chiaro e scuro. Home sul telefono invariata in entrambi i temi. ✅ emulatori `Pad7_API_35` e `Medium_Phone_API_35`, 13/11/2026; `flutter analyze` senza issue. Dettagli in `tablet-layout.md`.

@@ -22,7 +22,7 @@ class _Destination {
 /// scrolls behind the bar (`extendBody`).
 ///
 /// On wide windows the bar is centered with a max width; on wide landscape
-/// windows (tablet held horizontally) it becomes a vertical rail on the left,
+/// windows (tablet held horizontally) it becomes a vertical rail on the right,
 /// next to the content (see `AppLayout.useRail`).
 class ShellScaffold extends StatelessWidget {
   const ShellScaffold({super.key, required this.navigationShell});
@@ -98,14 +98,22 @@ class ShellScaffold extends StatelessWidget {
       },
       child: Scaffold(
         extendBody: true,
-        // Same tree in both modes (the rail is only inserted before the
+        // Same tree in both modes (the rail is only inserted after the
         // content), so rotating keeps the state of the tabs.
         body: Row(
           children: [
+            Expanded(
+              // The rail already consumed the right system inset.
+              child: MediaQuery.removePadding(
+                context: context,
+                removeRight: rail,
+                child: navigationShell,
+              ),
+            ),
             if (rail)
               SafeArea(
-                right: false,
-                minimum: const EdgeInsets.fromLTRB(16, 16, 0, 16),
+                left: false,
+                minimum: const EdgeInsets.fromLTRB(0, 16, 16, 16),
                 child: Center(
                   child: Column(
                     mainAxisSize: MainAxisSize.min,
@@ -113,14 +121,6 @@ class ShellScaffold extends StatelessWidget {
                   ),
                 ),
               ),
-            Expanded(
-              // The rail already consumed the left system inset.
-              child: MediaQuery.removePadding(
-                context: context,
-                removeLeft: rail,
-                child: navigationShell,
-              ),
-            ),
           ],
         ),
         bottomNavigationBar: rail
