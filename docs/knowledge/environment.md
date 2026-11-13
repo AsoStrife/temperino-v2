@@ -1,6 +1,6 @@
 # Ambiente, toolchain e versioni
 
-Ultimo aggiornamento: 12 novembre 2026.
+Ultimo aggiornamento: 13 novembre 2026.
 
 ## Toolchain usata per lo sviluppo
 
@@ -48,3 +48,10 @@ La specifica indica Flutter 3.50 (uscita l'11 novembre 2026). Vedi `decisions.md
 | dev: `flutter_lints` | ^6.0.0 | Lint |
 
 Le versioni esatte risolte sono in `pubspec.lock` (versionato).
+
+## Build APK ARM (13/11/2026)
+
+- `flutter build apk --release --target-platform android-arm,android-arm64` compila `libapp.so` e `libflutter.so` per ARM32 e ARM64. In questa toolchain l'APK combinato include anche `libdartjni.so` e `libdatastore_shared_counter.so` x86_64 delle dipendenze; `aapt dump badging` riporta quindi anche x86_64, che non dispone del runtime Flutter in questa build.
+- Per isolare le architetture native e ottenere APK più leggeri usare `--split-per-abi` con gli stessi target: produce `app-arm64-v8a-release.apk` e `app-armeabi-v7a-release.apk`. Comandi completi nel `README.md`.
+- Con `version: 2.0.0+1`, `aapt` riporta `versionName=2.0.0`, `versionCode=1` nell'APK combinato e codici derivati da Flutter negli split: `2001` ARM64 e `1001` ARM32. Tenerne conto per eventuali aggiornamenti installati a mano fra varianti.
+- `android/key.properties` assente al momento della build: firma Android Debug di ripiego configurata dal progetto. `apksigner verify --verbose --print-certs` verifica la firma dell'artefatto.

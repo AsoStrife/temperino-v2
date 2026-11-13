@@ -124,6 +124,25 @@ flutter build apk --debug
 
    Per un APK installabile a mano: `flutter build apk --release`.
 
+   Per un unico APK ARM a 32 e 64 bit, valido sia su smartphone sia su tablet Android:
+
+   ```bash
+   flutter build apk --release --target-platform android-arm,android-arm64
+   # output: build/app/outputs/flutter-apk/app-release.apk
+   ```
+
+   Il layout si adatta allo spazio disponibile: non servono APK diversi per smartphone e tablet.
+
+   Per APK separati e più leggeri per ciascuna architettura ARM:
+
+   ```bash
+   flutter build apk --release --target-platform android-arm,android-arm64 --split-per-abi
+   # 64 bit: build/app/outputs/flutter-apk/app-arm64-v8a-release.apk
+   # 32 bit: build/app/outputs/flutter-apk/app-armeabi-v7a-release.apk
+   ```
+
+   ARM64 è la variante per il Pad 7 e gli smartphone Android a 64 bit; ARM32 serve per dispositivi con sistema a 32 bit. Gli APK separati contengono solo le librerie dell'architettura scelta.
+
 Senza `android/key.properties` la build release viene firmata con la chiave di debug (utile per provarla in locale, **non** caricabile sul Play Store).
 
 L'`applicationId` è `com.strifelab.temperino`, lo stesso della vecchia app: il bundle aggiorna l'app esistente sul Play Store se firmato con la chiave giusta.
