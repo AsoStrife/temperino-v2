@@ -103,11 +103,17 @@ class ShellScaffold extends StatelessWidget {
         body: Row(
           children: [
             Expanded(
-              // The rail already consumed the right system inset.
-              child: MediaQuery.removePadding(
-                context: context,
-                removeRight: rail,
-                child: navigationShell,
+              // The rail already consumed the right system inset. The Builder
+              // is required: `removePadding` copies the MediaQuery of the
+              // context it receives, and only the one inside the Scaffold body
+              // carries the height of the bottom bar (`extendBody`), which
+              // `AppPage` uses as bottom padding.
+              child: Builder(
+                builder: (context) => MediaQuery.removePadding(
+                  context: context,
+                  removeRight: rail,
+                  child: navigationShell,
+                ),
               ),
             ),
             if (rail)

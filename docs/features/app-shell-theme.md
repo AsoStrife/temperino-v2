@@ -5,7 +5,7 @@ Token, componenti e regole visive: `docs/knowledge/design-system.md`.
 ## Navigazione
 
 - `go_router` con `StatefulShellRoute.indexedStack`: cinque rami (Home `/`, Attività `/activities`, Masturbazioni `/masturbations`, Statistiche `/stats`, Impostazioni `/settings`), ognuno conserva il proprio stato.
-- **Barra flottante a pillola** (`ShellScaffold`): cinque icone (outline → piena con cerchio tonale quando selezionata), etichette in tooltip e semantica, sfondo semitrasparente con sfocatura, ombra morbida. Il contenuto scorre sotto (`extendBody`).
+- **Barra flottante a pillola** (`ShellScaffold`): cinque icone (outline → piena con cerchio tonale quando selezionata), etichette in tooltip e semantica, sfondo semitrasparente con sfocatura, ombra morbida. Il contenuto scorre sotto (`extendBody`); `AppPage` aggiunge in fondo l'altezza della barra (`MediaQuery.padding.bottom` del body) più 24 dp, così l'ultimo elemento resta cliccabile. Il `MediaQuery.removePadding` attorno al navigator è dentro un `Builder`: con il `context` di `ShellScaffold` (sopra lo `Scaffold`) cancellerebbe l'altezza della barra.
 - **Pulsante "+"** circolare con gradiente accanto alla barra: sul tab Attività apre il form attività, sul tab Masturbazioni il form masturbazione, altrove un foglio "Cosa aggiungi?" con le due opzioni.
 - **Tablet**: barra centrata (max 560 dp) da 600 dp; con finestra ≥ 840 dp, orizzontale e alta almeno 480 dp, **rail verticale flottante a destra** con il "+" sotto. In verticale la barra resta in basso. SnackBar larghe 480 dp e centrate da 600 dp. Dettagli in `tablet-layout.md`.
 - Ritoccare il tab attivo riporta alla radice del tab.

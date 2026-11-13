@@ -18,3 +18,9 @@ Ogni voce è un requisito. La colonna "Dove" indica il codice che lo garantisce:
 | B12 | `toys` inviato come 0. | `toys` è `bool`, default `false`, serializzato come booleano. | `masturbation.dart`, `masturbation_dto.dart` |
 | B13 | Totali che sommavano `null`. | `JsonReaders.readInt(null) == 0`. | `json_readers.dart` |
 | B14 | Nomi delle pratiche diversi fra form e statistiche. | Un solo nome per pratica in `AppConfig.practiceLabels`, usato da `Practice.label` in form, lista e statistiche. | `app_config.dart`, `sexual_activity.dart` |
+
+## Regressioni dell'app nuova
+
+| Bug | Causa | Soluzione | Dove |
+| --- | --- | --- | --- |
+| Le pagine dei tab scorrevano fino sotto la barra flottante: ultimo elemento coperto e non cliccabile (introdotto con il layout tablet). | `MediaQuery.removePadding(context: context, …)` in `ShellScaffold.build` usava il `context` sopra lo `Scaffold` e sovrascriveva il `MediaQuery` del body, che porta l'altezza della barra (`extendBody`). `AppPage` riceveva solo l'inset di sistema. | `Builder` attorno a `removePadding`, così legge il `MediaQuery` interno al body. | `shell_scaffold.dart` |

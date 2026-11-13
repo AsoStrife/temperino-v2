@@ -93,7 +93,7 @@ Font di sistema (Roboto). Titoli e display con peso 700–800 e tracking negativ
 
 - Barra flottante a pillola (`lib/app/shell_scaffold.dart`) con 5 icone (etichetta in tooltip e semantica) e sfocatura dello sfondo; a fianco il pulsante "+" circolare con gradiente. Sui tablet centrata (max 560 dp) o, in orizzontale, rail verticale a destra con il "+" sotto (vedi "Schermi grandi").
 - "+" contestuale: tab Attività → nuova attività; tab Masturbazioni → nuova masturbazione; altrove → foglio "Cosa aggiungi?".
-- Il contenuto scorre sotto la barra (`extendBody`): le pagine aggiungono `MediaQuery.paddingOf(context).bottom` in fondo (già fatto da `AppPage`).
+- Il contenuto scorre sotto la barra (`extendBody`): le pagine aggiungono `MediaQuery.paddingOf(context).bottom` in fondo (già fatto da `AppPage`). Quel valore include l'altezza della barra solo se il `MediaQuery` del body dello `Scaffold` della shell arriva intatto alle pagine: chi avvolge il navigator in un `MediaQuery` deve usare il `context` interno al body (`Builder`), mai quello di `ShellScaffold.build`.
 - I form si aprono come "fullscreen dialog" (icona X), con `SaveBar` in basso e cancellazione nell'app bar.
 
 ## Schermi grandi (tablet)

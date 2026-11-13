@@ -41,3 +41,5 @@ Regole su come e quando aggiornare questi file: `AGENTS.md` nella radice.
 | [2026-11-13-tablet-support.md](plans/2026-11-13-tablet-support.md) | ✅ Supporto tablet in verticale e orizzontale |
 | [2026-11-13-tablet-rail-right.md](plans/2026-11-13-tablet-rail-right.md) | ✅ Barra tablet a destra solo in orizzontale |
 | [2026-11-13-apk-arm.md](plans/2026-11-13-apk-arm.md) | ✅ Build APK ARM per smartphone e tablet |
+| [2026-11-13-fix-bottom-padding.md](plans/2026-11-13-fix-bottom-padding.md) | ✅ Padding in fondo alle pagine sopra la barra flottante |
+| [2026-11-13-apk-arm-bottom-padding.md](plans/2026-11-13-apk-arm-bottom-padding.md) | ✅ APK ARM aggiornato con il fix del padding |
